@@ -152,7 +152,6 @@ contract Referral is IReferral {
             require(registered[user], "user not registered");
 
             _parent[user] = parent;
-            _children[parent].push(user);
         }
     }
 
