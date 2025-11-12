@@ -665,7 +665,10 @@ contract Staking is Owned {
         stakeDays[index] = newStakeDay;
     }
 
-
+    function getStakeDayByIndex(uint256 index) public view returns (uint256) {
+        require(index < stakeDays.length, "Index out of bounds");
+        return stakeDays[index];
+    }
 }
 
 library Math {
