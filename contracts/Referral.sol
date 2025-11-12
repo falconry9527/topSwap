@@ -140,21 +140,6 @@ contract Referral is IReferral {
         return result;
     }
 
-    function bindRefer(address parent, address user) external   {
-        // 顶级代理什么也不用做
-        if(!isTopAddress[user]){
-            require(user != parent, "Cannot refer self");
-            require(parent != address(0), "Cannot refer address 0");
-            require(parent != DEAD_ADDRESS, "Cannot refer blackhole");
-            require(parent != address(0xdead), "Cannot refer blackhole");
-            require(!isTopAddress[user], "Top cannot be referred");
-            require(registered[parent], "parent not registered");
-            require(registered[user], "user not registered");
-
-            _parent[user] = parent;
-        }
-    }
-
     function getDirectChildren(address _address) external view returns(address[] memory) {
         return _children[_address];
     }
