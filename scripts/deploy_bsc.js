@@ -98,6 +98,7 @@ async function main() {
 
     // 调用 pancakePair()
     const pairAddress = await top.pancakePair();
+    await top.setWhiteList("0x1b569f4ff09318c3b19c24280a24f821ba5f6f63",true) ;
     console.log("Pancake Pair address:", pairAddress);
     console.log("-----------------------------------------");
 

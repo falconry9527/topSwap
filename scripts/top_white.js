@@ -22,8 +22,8 @@ async function main() {
     // 设置可以交易
     // 或者批量设置白名单
     const users = [
-        "0xcf79b83417c1f6c75caec3d4dff36be7afdcdd74",
-        "0x4224952e70731cdf1255356ed1d45d9e3adc9396",
+        "0x05eac053cf3671f63fa9aadcc5ee9d16207ff55a",
+        "0x1b569f4ff09318c3b19c24280a24f821ba5f6f63",
     ];
     let tx2 = await top.multiSetWhiteList(users, true);
     console.log("Batch WhiteList set, tx hash:", tx2.hash);
