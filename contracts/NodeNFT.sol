@@ -10,70 +10,58 @@ import {INodeNFT} from "./interface/INodeNFT.sol";
 import {IReferral} from "./interface/IReferral.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
-/// @title Node and NFT System
-/// @notice 用户可以购买节点，推荐关系奖励，累积节点可领取 NFT
 contract NodeNFT is ERC721,INodeNFT, Ownable, ReentrancyGuard  {
     using SafeERC20 for IERC20;
 
-    // ======== 全局变量 ========
     IERC20 public USDT ;
-    address public marketingAddress; // 用于接收购买节点的资金
+    address public marketingAddress;
 
-    // 用户注册和代理相关
-    IReferral public referral; // 注册和代理关系合约
+    IReferral public referral;
    
-    // 节点相关 
-    uint256 public constant nodePrice = 500 * 1e18 ; // 单份节点价格（支付 ERC20）
-    uint256 public MAX_SHARES_PER_ADDRESS = 10; // 单个地址可购买的节点最大份数
-    uint256 public totalSharesSold; // 已售出节点总份数
+    uint256 public constant nodePrice = 500 * 1e18 ; 
+    uint256 public MAX_SHARES_PER_ADDRESS = 10; 
+    uint256 public totalSharesSold; 
 
-    mapping(address => uint256) public sharesOf; // 每个地址已购买的节点份数
-    mapping(address => uint256) public directShares; // 用户直推节点数量
-    mapping(address => uint256) public teamShares; // 用户团队节点数量
+    mapping(address => uint256) public sharesOf;
+    mapping(address => uint256) public directShares;
+    mapping(address => uint256) public teamShares; 
 
-    address[] public nodes;  // 每个节点按顺序的归属记录
-    mapping(address => NodeOrder[]) public userNodeOrders; // 用户的购买节点记录
-    mapping(address => NodeOrderReward[]) public directNodeOrders; // 上级用户的直推节点购买记录
-    mapping(address => uint256) public directNodeOrdersReward; // 直推奖励金额
+    address[] public nodes; 
+    mapping(address => NodeOrder[]) public userNodeOrders; 
+    mapping(address => NodeOrderReward[]) public directNodeOrders;
+    mapping(address => uint256) public directNodeOrdersReward; 
 
-    // NFT 相关
-    uint256 public constant MAX_NFT = 200; // NFT 总发行量
-    uint256 public constant MAX_SHARES_TOTAL = MAX_NFT * 10; // 节点总份数上限
-    uint256 public nextNftId = 1; // 下一个 NFT ID
-    uint256 public nftTotalMinted; // 已 mint NFT 数量
-    mapping(address => uint256) public nftEligibleCount; // 用户可领取 NFT 数量
-    mapping(address => uint256) public nftClaimedCount; // 用户已领取 NFT 数量
-    mapping(address => uint256[]) public nftEligibleIds; // 用户可领取 NFT ID 列表
-    mapping(address => uint256[]) public nftClaimedIds; // 用户已领取 NFT ID 列表
-    mapping(uint256 => bool) public nftExists; // NFT 是否已存在
+    uint256 public constant MAX_NFT = 200;
+    uint256 public constant MAX_SHARES_TOTAL = MAX_NFT * 10; 
+    uint256 public nextNftId = 1; 
+    uint256 public nftTotalMinted; 
+    mapping(address => uint256) public nftEligibleCount;
+    mapping(address => uint256) public nftClaimedCount;
+    mapping(address => uint256[]) public nftEligibleIds;
+    mapping(address => uint256[]) public nftClaimedIds;
+    mapping(uint256 => bool) public nftExists; 
     string public baseURL;
 
     struct NodeOrder {
-        uint256 timestamp; // 购买时间
-        uint256 shares; // 购买份数
-        uint256 totalAmount; // 总金额 = shares * unitPrice
+        uint256 timestamp;
+        uint256 shares;
+        uint256 totalAmount; 
     }
     struct NodeOrderReward {
-        uint256 timestamp; // 购买时间
-        uint256 shares; // 购买份数
-        uint256 totalAmount; // 总金额 = shares * unitPrice
-        uint256 directReward; // 直推奖励 
-        address buyerAddress; // 购买用户的地址
+        uint256 timestamp;
+        uint256 shares;
+        uint256 totalAmount;
+        uint256 directReward;
+        address buyerAddress; 
     }
-    uint256 public perNodeTops ; // 每个节点对应可领取 TOP 数量
-    mapping(address => uint256) public topsEligible; // 用户可领取的 TOP 代币数量
+    uint256 public perNodeTops ; 
+    mapping(address => uint256) public topsEligible; 
     address public topAdress;
-    // ======== 事件 ========
     event NodePurchased(address indexed user, uint256 shares, uint256 amount);
     event DirectRewardPaid(address indexed referrer, address indexed user, uint256 reward);
     event NFTClaimed(address indexed user, uint256 tokenId);
     event TopsClaimed(address indexed user, uint256 amount);
 
-    // ======== 构造函数 ========
-    /// @notice 构造函数，用于初始化 TopNodeNFT 合约
-    /// @param _usdtAddress        支付代币 USDT 的合约地址
-    /// @param _marketingAddress   市场合约
-    /// @param _referralAddress    上级关系合约
     constructor(
         address _usdtAddress,
         address _marketingAddress,
@@ -88,20 +76,17 @@ contract NodeNFT is ERC721,INodeNFT, Ownable, ReentrancyGuard  {
         baseURL = _baseURL;
     }
 
-    // ======== 节点购买相关 ========
     function buyNodes(uint256 shares) external nonReentrant {
         require(referral.isRegistered(msg.sender), "not registered");
         require(shares > 0, "shares>0");
         require(totalSharesSold + shares <= MAX_SHARES_TOTAL,"exceed total limit");
         require(sharesOf[msg.sender] + shares <= MAX_SHARES_PER_ADDRESS,"exceed per address limit");
         address ref = referral.getReferral(msg.sender) ;
-        require(referral.isBindReferral(msg.sender), "no ref") ; // 必须有上级代理才能买
+        require(referral.isBindReferral(msg.sender), "no ref") ;
 
         uint256 amount = shares * nodePrice ;
         USDT.safeTransferFrom(msg.sender, address(this), amount);
-        // 更新记录
          for (uint256 i = 0; i < shares; i++) {
-            // 更新记录
             nodes.push(msg.sender) ;
         }
         userNodeOrders[msg.sender].push(
@@ -126,16 +111,13 @@ contract NodeNFT is ERC721,INodeNFT, Ownable, ReentrancyGuard  {
                 })
             );
         }
-        // 发放直推奖励
         if (directReward > 0) {
             directNodeOrdersReward[ref] += directReward;
             USDT.safeTransfer(ref, directReward) ;
             emit DirectRewardPaid(ref, msg.sender, directReward); 
         }
-        // marketingAddress 
         USDT.safeTransfer(marketingAddress, amount - directReward);
         
-        // 更新 shares
         totalSharesSold += shares;
         sharesOf[msg.sender] += shares;
         
@@ -149,11 +131,9 @@ contract NodeNFT is ERC721,INodeNFT, Ownable, ReentrancyGuard  {
             cur =  referral.getReferral(cur);
         }
 
-        // 可领取NFT,更新上级的 
         updateNft(ref) ;
-        // 更新自己的
         updateNft(msg.sender) ;
-        topsEligible[msg.sender] += shares * perNodeTops; // 可领取代币数
+        topsEligible[msg.sender] += shares * perNodeTops; 
         emit NodePurchased(msg.sender, shares, amount);  // Emit event
     }
 
@@ -176,7 +156,6 @@ contract NodeNFT is ERC721,INodeNFT, Ownable, ReentrancyGuard  {
         nftEligibleCount[ref] = eligibleArray.length;
     }
 
-    // ======== NFT 领取 ========
     function claimNFT(uint256 tokenId) external nonReentrant {
         require(nftExists[tokenId], "NFT does not exist");
         require(isEligibleForNFT(msg.sender, tokenId), "You are not eligible for this NFT");
@@ -217,7 +196,6 @@ contract NodeNFT is ERC721,INodeNFT, Ownable, ReentrancyGuard  {
         }
         return array;
     }
-    // ======== 管理员方法 ========
     function setmarketingAddress(address _marketingAddress) external onlyOwner {
         require(_marketingAddress != address(0), "recipient address cannot be zero");
         marketingAddress = _marketingAddress;
@@ -225,7 +203,6 @@ contract NodeNFT is ERC721,INodeNFT, Ownable, ReentrancyGuard  {
     function setTOP(address _topAddress) external onlyOwner {
         topAdress = _topAddress;
     }
-    // ======== 查询方法 ========
     function getUserNodeOrders() external view returns (NodeOrder[] memory) {
         return userNodeOrders[msg.sender];
     }
@@ -257,17 +234,14 @@ contract NodeNFT is ERC721,INodeNFT, Ownable, ReentrancyGuard  {
         return nftEligibleIds[msg.sender];
     }
 
-    // 我的收益
     function getDirectReward() public view returns (uint256) {
         return directNodeOrdersReward[msg.sender];
     }
 
-    // 返回节点总数
     function getNodesLength() external view override returns (uint256) {
         return nodes.length;
     }
 
-    // 显式 override ERC721 和 INodeNFT
     function ownerOf(uint256 tokenId)
         public
         view

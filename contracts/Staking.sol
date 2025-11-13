@@ -45,12 +45,10 @@ contract Staking is Owned {
     string public constant symbol = "cpm";
 
     uint256 public totalSupply;
-    // 用户usdt 余额
     mapping(address => uint256) public balances;
     mapping(address => uint256) public userIndex;
     mapping(address => uint256) public balances30 ;
 
-    // 用户质押记录,团队业绩
     mapping(address => Record[]) public userStakeRecord;
     mapping(address => Record[]) public userUnStakeRecord;
     mapping(address => uint256) public teamTotalInvestValue;
@@ -58,16 +56,14 @@ contract Staking is Owned {
     uint8 immutable maxD = 30 ;
     address public dividAdress ;
 
-    // 全局质押记录
     RecordTT[] public t_supply;
 
-    // === 限额控制 ===
-    uint256[9] public dailyLimits; // 单位：U * 1e18
-    uint256[3] public oneLimits; // 单位：U * 1e18
+    uint256[9] public dailyLimits;
+    uint256[3] public oneLimits; 
     
-    uint256 public openTime; // 交易开始时间
+    uint256 public openTime; 
 
-    mapping(uint256 => uint256) public dailyStakeAmount; // 记录每天已质押总额 (key=天序号)
+    mapping(uint256 => uint256) public dailyStakeAmount; 
     struct RecordTT {
         uint40 stakeTime;
         uint256 tamount;
@@ -76,28 +72,21 @@ contract Staking is Owned {
         uint40 stakeTime;
         uint256 amount;
         uint256 reward;
-        uint40 status; // 赎回进度 0 ： 等待赎回（还未到期） 1：立即赎回（到期可以赎回） 2 ：已赎回
+        uint40 status; 
         uint8 stakeIndex;
         uint256 index;
     }
     mapping(address => uint40) public lastTxTime;
-    uint256 public  coldTime = 1 ; // 60秒冷却时间，可根据需求调整
-
-    //只允许用户直接质押
+    uint256 public  coldTime = 1 ; 
     modifier onlyEOA() {
         require(tx.origin == msg.sender, "EOA");
         _;
     }
-    // 交易冷却 ---
     modifier txCold() {
      require(block.timestamp - lastTxTime[msg.sender] >= coldTime, "cold");
        _;
     }
-    /// @param _usdtAddress        支付代币 USDT 的合约地址
-    /// @param _marketingAddress   市场合约
-    /// @param _routerAddress       IPancake路由地址
-    /// @param _referralAddress    上级关系合约
-    /// @param _dividAdress        分红合约地址
+
     constructor(
         address _usdtAddress,
         address _marketingAddress ,
@@ -115,11 +104,10 @@ contract Staking is Owned {
         ROUTER = IPancakeRouter02(_routerAddress);
         USDT.approve(address(ROUTER), type(uint256).max);
 
-        // 部署第二天的 下午16:00 开放交易
-        openTime = ((block.timestamp + 8 hours) / 1 days * 1 days)  // 今天 0:00 北京时间
-              + 1 days                                         // 第二天 0:00 北京时间
-              + 16 hours                                       // 第二天 16:00 北京时间
-              - 8 hours;                                       // 转回 UTC 时间
+        openTime = ((block.timestamp + 8 hours) / 1 days * 1 days) 
+              + 1 days                                       
+              + 16 hours                                     
+              - 8 hours;                                       
 
         dailyLimits = [
             30000 * 1e18,
@@ -130,7 +118,7 @@ contract Staking is Owned {
             400000 * 1e18,
             500000 * 1e18,
             600000 * 1e18,
-            type(uint256).max // 无限额
+            type(uint256).max 
         ];
 
         oneLimits = [
@@ -140,7 +128,6 @@ contract Staking is Owned {
         ];
     }
 
-    // 设置开放交易时间（单位：秒，UTC 时间戳）
     function setOpenTime(uint256 _openTime) external onlyOwner {
         openTime = _openTime;
     }
@@ -187,7 +174,7 @@ contract Staking is Owned {
         require(_amount <= maxStakeAmount(), "Exceed limit");
         require(_stakeIndex<=1,"<=1");
         require(canStakeNow(msg.sender) || currentDayIndex()>=120 ,"Exceed limit");
-        if (_stakeIndex == 1) { // 30天质押需要限额
+        if (_stakeIndex == 1) { 
             uint256 today = currentDayIndex();
             require(dailyStakeAmount[today] + _amount <= getDayLimit(), "Exceed daily limit");
             dailyStakeAmount[today] += _amount;
@@ -201,14 +188,15 @@ contract Staking is Owned {
         uint256 _amount,
         uint256 amountOutMin,
         uint8 _stakeIndex,
-        address parent
+        address _parent
     ) external onlyEOA txCold {
         require(_amount >= 1e18, "amount < 1");
         require(_amount <= maxStakeAmount(), "Exceed limit");
         require(_stakeIndex<=1,"<=1");
         require(canStakeNow(msg.sender) || currentDayIndex()>=120 ,"Exceed limit");
+        require(REFERRAL.getReferral(msg.sender)== _parent, "parent error");
 
-        if (_stakeIndex == 1) { // 30天质押需要限额
+        if (_stakeIndex == 1) {
             uint256 today = currentDayIndex();
             uint256 currentLimit = getDayLimit();
             require(dailyStakeAmount[today] + _amount <= currentLimit, "Exceed daily limit");
@@ -216,9 +204,6 @@ contract Staking is Owned {
         }
         swapAndAddLiquidity(_amount, amountOutMin);
         address user = msg.sender;
-        if (!REFERRAL.isBindReferral(user) && REFERRAL.isBindReferral(parent)) {
-            REFERRAL.bindReferral(parent, user);
-        }
         mint(user, _amount,_stakeIndex);
         lastTxTime[msg.sender]=uint40(block.timestamp);
     }
@@ -248,7 +233,7 @@ contract Staking is Owned {
             bala - balb,
             0, // slippage is unavoidable
             0, // slippage is unavoidable
-            address(0), // 不需要 LP token,直接销毁
+            address(0), 
             block.timestamp
         );
     }
@@ -304,6 +289,7 @@ contract Staking is Owned {
             }
         }
     }
+    
     function caclItem(Record storage user_record)
         private
         view
@@ -337,13 +323,11 @@ contract Staking is Owned {
         Record[] storage allRecords = userStakeRecord[msg.sender];
         uint256 total = allRecords.length;
         uint256 count;
-        // 先统计需要的数量
         for (uint256 i = 0; i < total; i++) {
             if (allRecords[i].status < 2) {
                 count++;
             }
         }
-        // 初始化 memory 数组
         records = new Record[](count);
         uint256 idx;
         for (uint256 i = 0; i < total; i++) {
@@ -352,7 +336,6 @@ contract Staking is Owned {
                 Record memory tempRecord = user_record;
                 uint256 stakeTime = user_record.stakeTime;
                 uint256 stakeDuration = stakeDays[user_record.stakeIndex];
-                // 到期未赎回
                 if (block.timestamp - stakeTime >= stakeDuration && user_record.status < 2) {
                     tempRecord.status = 1;
                 }
@@ -364,18 +347,15 @@ contract Staking is Owned {
     }
 
     function unstakeCount(address user) external view returns (uint256 count) {
-        // 返回用户已赎回的质押记录数量
         count = userUnStakeRecord[user].length;
     }
 
     function getUserUnStakeRecords() external view returns (Record[] memory) {
         Record[] storage allRecords = userUnStakeRecord[msg.sender];
         uint256 total = allRecords.length;
-        // 如果记录少于等于100条，直接返回全部
         if (total <= 100) {
             return allRecords;
         }
-        // 否则返回最后100条
         Record[] memory last100 = new Record[](100);
         for (uint256 i = 0; i < 100; i++) {
             last100[i] = allRecords[total - 100 + i];
@@ -392,8 +372,8 @@ contract Staking is Owned {
         path[0] = address(TOP);
         path[1] = address(USDT);
         ROUTER.swapTokensForExactTokens(
-            reward, //  目标输出数量
-            bal_this, // 最大输入数量
+            reward,
+            bal_this,
             path,
             address(this),
             block.timestamp
@@ -407,19 +387,15 @@ contract Staking is Owned {
             interset = amount_usdt - stake_amount;
         }
 
-        // 5% 直推奖励,直接发放
         uint256 referral_fee = referralReward(msg.sender, interset);
         address[] memory referrals = REFERRAL.getReferrals(msg.sender, maxD);
         for (uint8 i = 0; i < referrals.length; i++) {
             teamTotalInvestValue[referrals[i]] -= stake_amount;
         }
-        // 20% 按团队等级分配
         uint256 team_fee = teamReward(referrals,interset);
 
-        // 5% 节点分红
         uint256 node_divide = nodeDivide(interset);
         
-        // 70% 给用户
         Record[] storage cord = userStakeRecord[msg.sender];
         Record storage user_record = cord[index];
         user_record.reward= amount_usdt - referral_fee - team_fee - node_divide ;
@@ -463,6 +439,23 @@ contract Staking is Owned {
 
     function getTeamKpi(address _user) public view returns (uint256) {
         return teamTotalInvestValue[_user] + teamVirtuallyInvestValue[_user];
+    }
+
+    function getTeamLevel(address _user) public view returns (uint8) {
+          uint8 team_level = 0 ;
+          uint256 team_kpi = teamTotalInvestValue[_user] + teamVirtuallyInvestValue[_user];
+          if (team_kpi >= 700000 * 10**18 ) {
+             team_level=5 ;
+          } else if ( team_kpi >= 300000 * 10**18 ){
+             team_level=4 ;
+          } else if ( team_kpi >= 100000 * 10**18 ){
+             team_level=3 ;
+          } else if ( team_kpi >= 50000 * 10**18 ){
+             team_level=2 ;
+          } else if ( team_kpi >= 10000 * 10**18 ){
+             team_kpi=1 ;
+          } 
+        return team_level ;
     }
 
     function isPreacher(address user) public view returns (bool) {
@@ -581,16 +574,14 @@ contract Staking is Owned {
     }
 
     function currentDayIndex() public view returns (uint256 dayIndex) {
-        // 调整为北京时间
         uint256 timeInBeijing = block.timestamp + 8 hours;
-        // 从合约部署开始，按16:00为界限
         uint256 delta = timeInBeijing - openTime - 8 hours + 16 hours;
         dayIndex = delta / 1 days ;
     }
     
     function getDayLimit() public view returns (uint256 limit) {
         uint256 dayIndex = currentDayIndex();
-        uint256 stage = dayIndex / 15; // 每15天一个阶段
+        uint256 stage = dayIndex / 15; 
         if (stage >= 8) return dailyLimits[8];
         return dailyLimits[stage];
     }
@@ -599,7 +590,6 @@ contract Staking is Owned {
         if(block.timestamp < openTime ){
            return 0 ;
         }
-        // 返回用户已赎回的质押记录数量
         uint256  maxDayAmount = getDayLimit()-dailyStakeAmount[currentDayIndex()] ;
         if(maxDayAmount < 0){
             maxDayAmount = 0 ;
@@ -612,19 +602,19 @@ contract Staking is Owned {
            return 0 ;
         }
         uint256 dayIndex = currentDayIndex();
-        uint256 stage = dayIndex / 15; // 每15天一个阶段
+        uint256 stage = dayIndex / 15; 
         if (stage >= 2) return oneLimits[2];
         return oneLimits[stage];
     }
 
     function setDailyLimits(uint256[8] calldata _limits) external onlyOwner {
         for (uint256 i = 0; i < 8; i++) {
-            dailyLimits[i] = _limits[i] * 1e18; // 传U，内部转wei
+            dailyLimits[i] = _limits[i] * 1e18;
         }
     }
     function setOneLimits(uint256[3] calldata _limits) external onlyOwner {
         for (uint256 i = 0; i < 3; i++) {
-            oneLimits[i] = _limits[i] * 1e18; // 传U，内部转wei
+            oneLimits[i] = _limits[i] * 1e18; 
         }
     }
 
@@ -644,22 +634,24 @@ contract Staking is Owned {
         return true;
     }
 
-    // 获取上级用户
-    function getReferral() external view returns (address) {
-     return REFERRAL.getReferral(msg.sender);
+    function getReferral(address _user) external view returns (address) {
+     return REFERRAL.getReferral(_user);
     }
-
+    function getReferrals(address _user) external view returns (address[] memory) {
+     return REFERRAL.getReferrals(_user,10);
+    }
+    function getDirectChildren(address _user) external view returns (address[] memory) {
+     return REFERRAL.getDirectChildren(_user);
+    }
     function setColdTime(uint256 _coldTime) external onlyOwner {
         coldTime = _coldTime;
     }
     
-    // 设置单个 rate
     function setRate(uint256 index, uint256 newRate) external onlyOwner {
         require(index < rates.length, "invalid index");
         rates[index] = newRate;
     }
 
-    // 设置单个 stakeDays
     function setStakeDay(uint256 index, uint256 newStakeDay) external onlyOwner {
         require(index < stakeDays.length, "invalid index");
         stakeDays[index] = newStakeDay;

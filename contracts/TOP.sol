@@ -28,24 +28,23 @@ contract Distributor {
         if (balance > 0) {
             token.transfer(to, balance);
         }
-        return balance; // 返回实际转出的金额
+        return balance; 
     }
 
 }
 
 
 contract TOP is  ExcludedFromFeeList, FirstLaunch, ERC20 {
-    bool public liquidityInitialized; // 防止重复初始化
+    bool public liquidityInitialized; 
     bool public presale;
     uint40 public coldTime = 1 seconds;
 
     address public marketingAddress;
 
-    // 每2个代币，卖出到 pankcake 一次
     uint256 public swapAtAmount = 1 ether;
 
-    mapping(address => bool) public rewardList; // 黑名单
-    mapping(address => bool) public whiteList; // 白名单
+    mapping(address => bool) public rewardList;
+    mapping(address => bool) public whiteList; 
 
     mapping(address => uint256) public tOwnedU;
     mapping(address => uint40) public lastBuyTime;
@@ -103,11 +102,6 @@ contract TOP is  ExcludedFromFeeList, FirstLaunch, ERC20 {
     Distributor public immutable  distributor;
     address public dividAdress ;
 
-    /// @param _usdtAddress        支付代币 USDT 的合约地址
-    /// @param _marketingAddress   市场合约
-    /// @param _routerAddress       IPancake路由地址
-    /// @param _referralAddress    上级关系合约
-    /// @param _dividAdress        分红合约地址
     constructor(
         address _usdtAddress,
         address _marketingAddress,
@@ -163,7 +157,7 @@ contract TOP is  ExcludedFromFeeList, FirstLaunch, ERC20 {
                 (uint112 reserveU, uint112 reserveThis, ) = IPancakePair(
                     pancakePair
                 ).getReserves();
-                require(amount <= reserveThis / 10, "max cap buy"); //每次买单最多只能卖池子的10%
+                require(amount <= reserveThis / 10, "max cap buy"); 
                 updatePoolReserve(reserveU);
                 uint256 amountUBuy = Helper.getAmountIn(
                     amount,
@@ -190,7 +184,7 @@ contract TOP is  ExcludedFromFeeList, FirstLaunch, ERC20 {
             (uint112 reserveU, uint112 reserveThis, ) = IPancakePair(
                 pancakePair
             ).getReserves();
-            require(amount <= reserveThis / 10, "max cap sell"); //每次卖单最多只能卖池子的10%
+            require(amount <= reserveThis / 10, "max cap sell"); 
 
             uint256 burnAmount = (amount * 5) / 1000;
             uint256 lpAmount = (amount * 15) / 1000;
@@ -300,21 +294,13 @@ contract TOP is  ExcludedFromFeeList, FirstLaunch, ERC20 {
             address[] memory path = new address[](2);
             path[0] = address(this);
             path[1] = address(USDT);
-            
-            // 使用 try-catch 处理可能的错误
-            try pancakeV2Router.swapExactTokensForTokensSupportingFeeOnTransferTokens(
+            pancakeV2Router.swapExactTokensForTokensSupportingFeeOnTransferTokens(
                 tokenAmount,
-                0, // 对于有转账费的代币，设置较低的期望值
+                0, 
                 path,
                 to,
                 block.timestamp
-            ) {
-                // 交换成功
-            } catch Error(string memory reason) {
-                revert(string(abi.encodePacked("Swap failed: ", reason)));
-            } catch {
-                revert("Swap failed with unknown error");
-            }
+            );
         }
     }
 

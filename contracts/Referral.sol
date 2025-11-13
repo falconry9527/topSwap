@@ -9,10 +9,9 @@ contract Referral is IReferral {
     event TopAddressAdded(address indexed newTop);
     event TopAddressRemoved(address indexed oldTop);
 
-    address public owner;      // 管理员
-    uint256 public constant MAX_DEPTH = 30; // 最大推荐链查询深度
+    address public owner;    
+    uint256 public constant MAX_DEPTH = 30; 
 
-    // 顶层账号集合
     address[] public topAddresses;
     mapping(address => bool) public isTopAddress;
 
@@ -21,13 +20,6 @@ contract Referral is IReferral {
     mapping(address => bool) public registered;
     address constant DEAD_ADDRESS = 0x000000000000000000000000000000000000dEaD;
     
-    // 授权地址
-    mapping(address => bool) public authorized;
-
-    modifier onlyAuthorized() {
-        require(authorized[msg.sender], "not authorized");
-        _;
-    }
     modifier onlyOwner() {
         require(msg.sender == owner, "Not owner");
         _;
@@ -44,14 +36,9 @@ contract Referral is IReferral {
         _parent[_tops] = address(0);
     }
 
-    function setAuthorized(address _addr, bool _status) external onlyOwner {
-        authorized[_addr] = _status;
-    }
 
-    // 注册 + 绑定上级
     function registerUser(address _referral) external override  {
         address _user = msg.sender;
-        // 顶级代理什么也不用做
         if(!isTopAddress[_user]){
             require(!registered[_user], "Already registered");
             require(_user != _referral, "Cannot refer self");
@@ -66,31 +53,22 @@ contract Referral is IReferral {
             _parent[_user] = _referral;
             _children[_referral].push(_user);
         }
-     
     }
 
-    // 授权绑定推荐人
-    function bindReferral(address parent, address user) external override onlyAuthorized {
-        // 顶级代理什么也不用做
+    function bindReferral(address parent, address user) external  {
         if(!isTopAddress[user]){
             require(user != parent, "Cannot refer self");
             require(parent != address(0), "Cannot refer address 0");
             require(parent != DEAD_ADDRESS, "Cannot refer blackhole");
             require(parent != address(0xdead), "Cannot refer blackhole");
             require(!isTopAddress[user], "Top cannot be referred");
-            require(_parent[user] == address(0), "Already has parent");
+            require(_parent[user] != address(0), "Already has parent");
             require(registered[parent], "parent not registered");
             require(registered[user], "user not registered");
-
             _parent[user] = parent;
-            _children[parent].push(user);
         }
     }
 
-    // ------------------------
-    // 管理功能
-    // ------------------------
-    // 添加新的顶层地址
     function addTopAddress(address newTop) external onlyOwner {
         require(newTop != address(0), "Invalid address");
         require(!isTopAddress[newTop], "Already a top address");
@@ -101,10 +79,6 @@ contract Referral is IReferral {
 
         emit TopAddressAdded(newTop);
     }
-
-    // ------------------------
-    // 查询接口
-    // ------------------------
     function isRegistered(address _user) external view override returns(bool) {
         return registered[_user];
     }
@@ -143,5 +117,10 @@ contract Referral is IReferral {
     function getDirectChildren(address _address) external view returns(address[] memory) {
         return _children[_address];
     }
+
+    function getTopAddresses() external view returns(address[] memory) {
+        return topAddresses;
+    }
+
 }
 
