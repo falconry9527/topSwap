@@ -40,8 +40,6 @@ contract NodeNFT is ERC721Enumerable, INodeNFT, Ownable, ReentrancyGuard {
     mapping(address => uint256) public nftClaimedCount;
     mapping(address => uint256[]) public nftEligibleIds;
     mapping(address => uint256[]) public nftClaimedIds;
-
-    // 自定义 _exists mapping
     mapping(uint256 => bool) private nftExists;
 
     string public baseURL;
@@ -156,7 +154,7 @@ contract NodeNFT is ERC721Enumerable, INodeNFT, Ownable, ReentrancyGuard {
         uint256[] storage eligibleArray = nftEligibleIds[ref];
         for (uint256 i = 0; i < newEligible && nextNftId <= MAX_NFT; i++) {
             eligibleArray.push(nextNftId);
-            nftExists[nextNftId] = true; // 记录存在
+            nftExists[nextNftId] = true; 
             nextNftId++;
         }
         nftEligibleCount[ref] = eligibleArray.length;
@@ -283,21 +281,20 @@ contract NodeNFT is ERC721Enumerable, INodeNFT, Ownable, ReentrancyGuard {
     function getUserNodeOrders() external view returns (NodeOrder[] memory) {
         return userNodeOrders[msg.sender];
     }
-    // 定义一个带等级的新结构体
     struct NodeOrderRewardWithLevel {
         uint256 timestamp;
         uint256 shares;
         uint256 totalAmount;
         uint256 directReward;
         address buyerAddress;
-        uint8 teamLevel; // 新增等级字段
+        uint8 teamLevel;
     }
 
     function getDirectNodeOrders() external view returns (NodeOrderRewardWithLevel[] memory) {
         uint256 length = directNodeOrders[msg.sender].length;
         NodeOrderRewardWithLevel[] memory ordersWithLevel = new NodeOrderRewardWithLevel[](length);
         for (uint256 i = 0; i < length; i++) {
-            NodeOrderReward storage order = directNodeOrders[msg.sender][i]; // 直接从 storage 读取
+            NodeOrderReward storage order = directNodeOrders[msg.sender][i]; 
             uint8 level = IStaking(STAKING).getTeamLevel(order.buyerAddress);
             ordersWithLevel[i] = NodeOrderRewardWithLevel({
                 timestamp: order.timestamp,

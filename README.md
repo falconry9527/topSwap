@@ -87,6 +87,4 @@ npx hardhat run test/top_transfer.js --network bscTestnet
 
 npx hardhat run scripts/deploy_verify.js --network bscTestnet
 
-curl "https://api-testnet.bscscan.com/api?module=contract&action=getsourcecode&address=0xa75551858c7BE04bB190440ee9418Cb172d52bec&apikey=2BDYF5KGJGH5VAIIPXVFB7K6KWDVQ36M1G"
-
 ```
