@@ -18,6 +18,8 @@ console.log("-----------------------------------------");
 
 // 获取 Staking 合约实例  
 const Staking = await ethers.getContractAt("Staking", stakingAddress);  
+const tReferral = await Staking.getReferral("0x2A347e307BDA5b4aE56A391DA048333278fa4a9F");  
+console.log(`getReferral `, tReferral);  
 
 // 查询指定账户余额（质押余额 + 奖励）  
 const balance = await Staking.balanceOf("0x2A347e307BDA5b4aE56A391DA048333278fa4a9F");  

@@ -19,7 +19,6 @@ console.log("-----------------------------------------");
 
 // 获取 Staking 合约实例  
 const Staking = await ethers.getContractAt("Staking", stakingAddress);  
-const referral = await ethers.getContractAt("Referral", referralAddress);  
 // 查询最大可质押金额  
 const maxAmount = await Staking.maxStakeAmount();  
 console.log("Max stake amount:", ethers.formatUnits(maxAmount, 18), "USDT");  

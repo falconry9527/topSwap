@@ -10,9 +10,8 @@ import {IReferral} from "./interface/IReferral.sol";
 import {Owned} from "./abstract/Owned.sol";
 import {IPancakeFactory} from "./interface/IPancakeFactory.sol";
 import {IDivid} from "./interface/IDivid.sol";
-import {IStaking} from "./interface/IStaking.sol";
 
-contract Staking is Owned , IStaking{
+contract Staking is Owned {
     event Staked(
         address indexed user,
         uint256 amount,
@@ -613,6 +612,7 @@ contract Staking is Owned , IStaking{
             dailyLimits[i] = _limits[i] * 1e18;
         }
     }
+    
     function setOneLimits(uint256[3] calldata _limits) external onlyOwner {
         for (uint256 i = 0; i < 3; i++) {
             oneLimits[i] = _limits[i] * 1e18; 
