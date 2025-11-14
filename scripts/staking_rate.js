@@ -20,8 +20,8 @@ async function main() {
     // 获取 TOP 和 USDT 合约实例
     const Staking = await ethers.getContractAt("Staking", stakingAddress);
    const rates = [
-        "1000049940000000000", // 1.0000499498
-        "1001239000000000000"  // 1.001239
+        "1000049925000000000", // 1.0000499498
+        "1001239312300000000"  // 1.001239
     ];
 
     const stakeDays = [
