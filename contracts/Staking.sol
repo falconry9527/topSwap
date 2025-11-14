@@ -10,8 +10,9 @@ import {IReferral} from "./interface/IReferral.sol";
 import {Owned} from "./abstract/Owned.sol";
 import {IPancakeFactory} from "./interface/IPancakeFactory.sol";
 import {IDivid} from "./interface/IDivid.sol";
+import {IStaking} from "./interface/IStaking.sol";
 
-contract Staking is Owned {
+contract Staking is Owned , IStaking{
     event Staked(
         address indexed user,
         uint256 amount,
@@ -453,7 +454,7 @@ contract Staking is Owned {
           } else if ( team_kpi >= 50000 * 10**18 ){
              team_level=2 ;
           } else if ( team_kpi >= 10000 * 10**18 ){
-             team_kpi=1 ;
+             team_level=1 ;
           } 
         return team_level ;
     }

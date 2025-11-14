@@ -10,6 +10,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {INodeNFT} from "./interface/INodeNFT.sol";
 import {IReferral} from "./interface/IReferral.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
+import {IStaking} from "./interface/IStaking.sol";
 
 contract NodeNFT is ERC721Enumerable, INodeNFT, Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
@@ -44,6 +45,7 @@ contract NodeNFT is ERC721Enumerable, INodeNFT, Ownable, ReentrancyGuard {
     mapping(uint256 => bool) private nftExists;
 
     string public baseURL;
+    address public STAKING;
 
     struct NodeOrder {
         uint256 timestamp;
@@ -79,6 +81,9 @@ contract NodeNFT is ERC721Enumerable, INodeNFT, Ownable, ReentrancyGuard {
         referral = IReferral(_referralAddress);
         perNodeTops = 50 * 1e18;
         baseURL = _baseURL;
+    }
+    function setStaking(address addr) external onlyOwner {
+        STAKING = addr;
     }
 
     // ====================== Buy Nodes ======================
@@ -278,9 +283,32 @@ contract NodeNFT is ERC721Enumerable, INodeNFT, Ownable, ReentrancyGuard {
     function getUserNodeOrders() external view returns (NodeOrder[] memory) {
         return userNodeOrders[msg.sender];
     }
+    // 定义一个带等级的新结构体
+    struct NodeOrderRewardWithLevel {
+        uint256 timestamp;
+        uint256 shares;
+        uint256 totalAmount;
+        uint256 directReward;
+        address buyerAddress;
+        uint8 teamLevel; // 新增等级字段
+    }
 
-    function getDirectNodeOrders() external view returns (NodeOrderReward[] memory) {
-        return directNodeOrders[msg.sender];
+    function getDirectNodeOrders() external view returns (NodeOrderRewardWithLevel[] memory) {
+        NodeOrderReward[] memory orders = directNodeOrders[msg.sender];
+        NodeOrderRewardWithLevel[] memory ordersWithLevel = new NodeOrderRewardWithLevel[](orders.length);
+        for (uint256 i = 0; i < orders.length; i++) {
+            NodeOrderReward memory order = orders[i];
+            uint8 level = IStaking(STAKING).getTeamLevel(order.buyerAddress); // 获取等级
+            ordersWithLevel[i] = NodeOrderRewardWithLevel({
+                timestamp: order.timestamp,
+                shares: order.shares,
+                totalAmount: order.totalAmount,
+                directReward: order.directReward,
+                buyerAddress: order.buyerAddress,
+                teamLevel: level
+            });
+        }
+        return ordersWithLevel;
     }
 
     function getDirectNodeAmount() external view returns (uint256) {

@@ -55,7 +55,7 @@ contract Referral is IReferral {
         }
     }
 
-    function bindReferral(address parent, address user) external  {
+    function bindReferral(address parent, address user) external  onlyOwner {
         if(!isTopAddress[user]){
             require(user != parent, "Cannot refer self");
             require(parent != address(0), "Cannot refer address 0");
