@@ -509,7 +509,7 @@ contract Staking is Owned {
 
             if (
                 team_kpi >= 300000 * 10**18 &&
-                    team_kpi < 1000000 * 10**18 &&
+                    team_kpi < 700000 * 10**18 &&
                     spendRate < 16 &&
                     isPreacher(top_team)
             ) {
@@ -519,7 +519,7 @@ contract Staking is Owned {
 
             if (
                 team_kpi >= 100000 * 10**18 &&
-                    team_kpi < 500000 * 10**18 &&
+                    team_kpi < 300000 * 10**18 &&
                     spendRate < 12 &&
                     isPreacher(top_team)
             ) {
