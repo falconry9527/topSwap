@@ -19,7 +19,8 @@ module.exports = {
     bscTestnet: {
       url: BSC_TESTNET_RPC,
       chainId: 97,
-      accounts: [PRIVATE_KEY]
+      accounts: [PRIVATE_KEY],
+      nonceManagement: true
     },
 
     // BSC 主网
