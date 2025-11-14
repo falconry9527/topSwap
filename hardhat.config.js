@@ -1,5 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("dotenv").config();
+require("@nomicfoundation/hardhat-verify");
 
 const { PRIVATE_KEY, BSC_MAINNET_RPC, BSC_TESTNET_RPC } = process.env;
 
@@ -29,5 +30,8 @@ module.exports = {
       chainId: 56,
       accounts: [PRIVATE_KEY]
     }
-  }
+  },
+  etherscan: {
+  apiKey: process.env.BSC_API_KEY,
+},
 };
