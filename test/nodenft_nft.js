@@ -18,6 +18,8 @@ async function main() {
 
     // 获取合约实例
     const NodeNFT = await ethers.getContractAt("NodeNFT", nodeNFTAddress);
+    const count = await NodeNFT.getEligibleNFTCount();
+    console.log(` getEligibleNFTCount ${count}`);
 
     // 批量读取（防止RPC超时）
     const batchSize = 3;

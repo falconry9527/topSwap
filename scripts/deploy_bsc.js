@@ -112,21 +112,6 @@ async function main() {
     console.log(`Divid.setAuthorized called with: ${topAddress}`);
     console.log("-----------------------------------------");
     
-    // 6.2 授权 referral set 权限
-    tx = await referral.setAuthorized(stakingAddress, true);
-    await tx.wait();
-    console.log(`referral.setAuthorized called with: ${stakingAddress}`);
-
-    tx = await referral.setAuthorized(topAddress, true);
-    await tx.wait();
-    console.log(`referral.setAuthorized called with: ${topAddress}`);
-    console.log("-----------------------------------------");
-
-    tx = await referral.setAuthorized(nodeNFTAddress, true);
-    await tx.wait();
-    console.log(`referral.setAuthorized called with: ${nodeNFTAddress}`);
-    console.log("-----------------------------------------");
-
 
     // 7.1. Staking 设置 TOP 地址
     tx = await staking.setTOP(topAddress);
