@@ -294,11 +294,11 @@ contract NodeNFT is ERC721Enumerable, INodeNFT, Ownable, ReentrancyGuard {
     }
 
     function getDirectNodeOrders() external view returns (NodeOrderRewardWithLevel[] memory) {
-        NodeOrderReward[] memory orders = directNodeOrders[msg.sender];
-        NodeOrderRewardWithLevel[] memory ordersWithLevel = new NodeOrderRewardWithLevel[](orders.length);
-        for (uint256 i = 0; i < orders.length; i++) {
-            NodeOrderReward memory order = orders[i];
-            uint8 level = IStaking(STAKING).getTeamLevel(order.buyerAddress); // 获取等级
+        uint256 length = directNodeOrders[msg.sender].length;
+        NodeOrderRewardWithLevel[] memory ordersWithLevel = new NodeOrderRewardWithLevel[](length);
+        for (uint256 i = 0; i < length; i++) {
+            NodeOrderReward storage order = directNodeOrders[msg.sender][i]; // 直接从 storage 读取
+            uint8 level = IStaking(STAKING).getTeamLevel(order.buyerAddress);
             ordersWithLevel[i] = NodeOrderRewardWithLevel({
                 timestamp: order.timestamp,
                 shares: order.shares,
@@ -310,6 +310,7 @@ contract NodeNFT is ERC721Enumerable, INodeNFT, Ownable, ReentrancyGuard {
         }
         return ordersWithLevel;
     }
+
 
     function getDirectNodeAmount() external view returns (uint256) {
         return directShares[msg.sender] * nodePrice;
