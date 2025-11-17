@@ -47,7 +47,7 @@ contract Staking is Owned {
     uint256 public totalSupply;
     mapping(address => uint256) public balances;
     mapping(address => uint256) public userIndex;
-    mapping(address => uint256) public balances30 ;
+    mapping(address => uint256) public balances30Count ;
 
     mapping(address => Record[]) public userStakeRecord;
     mapping(address => Record[]) public userUnStakeRecord;
@@ -86,7 +86,11 @@ contract Staking is Owned {
      require(block.timestamp - lastTxTime[msg.sender] >= coldTime, "cold");
        _;
     }
-
+    struct DirectTeamInfo {
+        address user;
+        uint256 teamKpi;
+        uint8 teamLevel;
+    }
     constructor(
         address _usdtAddress,
         address _marketingAddress ,
@@ -255,7 +259,7 @@ contract Staking is Owned {
         totalSupply += _amount;
         balances[sender] += _amount;
         if(_stakeIndex==1 && _amount>=100e18){
-         balances30[sender] += 1;
+         balances30Count[sender] += 1;
         }
         Record[] storage cord = userStakeRecord[sender];
         uint256 stake_index = cord.length;
@@ -424,7 +428,7 @@ contract Staking is Owned {
         totalSupply -= amount;
         balances[sender] -= amount;
         if(user_record.stakeIndex ==1 && amount >= 100e18){
-         balances30[sender] -= 1;
+         balances30Count[sender] -= 1;
         }
 
         emit Transfer(sender, address(0), amount);
@@ -441,9 +445,26 @@ contract Staking is Owned {
         return teamTotalInvestValue[_user] + teamVirtuallyInvestValue[_user];
     }
 
-    function getTeamLevel(address _user) public view returns (uint8) {
+    function getDirectTeamKpi(address _user)
+        external
+        view
+        returns (DirectTeamInfo[] memory list)
+    {
+        address[] memory children = REFERRAL.getDirectChildren(_user);
+        uint256 len = children.length;
+        list = new DirectTeamInfo[](len);
+        for (uint256 i = 0; i < len; i++) {
+            address child = children[i];
+            list[i] = DirectTeamInfo({
+                user: child,
+                teamKpi: getTeamKpi(child),
+                teamLevel: getTeamLevel(child)
+            });
+        }
+    }
+
+    function getLevel(uint256 team_kpi) public pure returns (uint8) {
           uint8 team_level = 0 ;
-          uint256 team_kpi = teamTotalInvestValue[_user] + teamVirtuallyInvestValue[_user];
           if (team_kpi >= 700000 * 10**18 ) {
              team_level=5 ;
           } else if ( team_kpi >= 300000 * 10**18 ){
@@ -458,8 +479,13 @@ contract Staking is Owned {
         return team_level ;
     }
 
+    function getTeamLevel(address _user) public view returns (uint8) {
+        uint256 team_kpi = teamTotalInvestValue[_user] + teamVirtuallyInvestValue[_user];
+        return  getLevel(team_kpi) ;
+    }
+
     function isPreacher(address user) public view returns (bool) {
-        return balances30[user] >= 1;
+        return balances30Count[user] >= 1;
     }
 
     function referralReward(

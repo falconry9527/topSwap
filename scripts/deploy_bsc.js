@@ -125,11 +125,6 @@ async function main() {
     console.log(`nodeNFT.setTOP called with: ${topAddress}`);
     console.log("-----------------------------------------");
 
-    tx = await nodeNFT.setStaking(stakingAddress);
-    await tx.wait();
-    console.log(`nodeNFT.setStaking called with: ${stakingAddress}`);
-    console.log("-----------------------------------------");
-
     // 8. 初始化代币给 NodeNFT 和 Staking
     // 获取 TOP 总发行量（bigint 类型）
     const totalSupply = await top.totalSupply();
