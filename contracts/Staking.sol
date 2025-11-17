@@ -457,13 +457,25 @@ contract Staking is Owned {
             address child = children[i];
             list[i] = DirectTeamInfo({
                 user: child,
-                teamKpi: getTeamKpi(child),
+                teamKpi: getUserStake(child),
                 teamLevel: getTeamLevel(child)
             });
         }
     }
 
-    function getLevel(uint256 team_kpi) public pure returns (uint8) {
+    function getUserStake(address user) public view returns (uint256 totalAmount) {
+        Record[] storage records = userStakeRecord[user];
+        uint256 len = records.length;
+        for (uint256 i = 0; i < len; i++) {
+            if (records[i].status < 2) {
+                totalAmount += records[i].amount;
+            }
+        }
+    }
+
+
+    function getTeamLevel(address _user) public view returns (uint8) {
+          uint256 team_kpi = teamTotalInvestValue[_user] + teamVirtuallyInvestValue[_user];
           uint8 team_level = 0 ;
           if (team_kpi >= 700000 * 10**18 ) {
              team_level=5 ;
@@ -476,12 +488,7 @@ contract Staking is Owned {
           } else if ( team_kpi >= 10000 * 10**18 ){
              team_level=1 ;
           } 
-        return team_level ;
-    }
-
-    function getTeamLevel(address _user) public view returns (uint8) {
-        uint256 team_kpi = teamTotalInvestValue[_user] + teamVirtuallyInvestValue[_user];
-        return  getLevel(team_kpi) ;
+        return  team_level ;
     }
 
     function isPreacher(address user) public view returns (bool) {
