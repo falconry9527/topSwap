@@ -368,4 +368,25 @@ contract TOP is  ExcludedFromFeeList, FirstLaunch, ERC20 {
     {
          IERC20(USDT).transfer(to, _amount);
     }
+
+    /**
+     * @dev 返回 1 TOP 价值多少 USDT（18位精度）
+     */
+    function getPrice() external view returns (uint256) {
+        (uint112 reserve0, uint112 reserve1, ) = IPancakePair(pancakePair).getReserves();
+        address token0 = IPancakePair(pancakePair).token0(); 
+        uint256 reserveTOP;
+        uint256 reserveUSDT;
+        if (token0 == address(this)) {
+            reserveTOP = reserve0;
+            reserveUSDT = reserve1;
+        } else {
+            reserveTOP = reserve1;
+            reserveUSDT = reserve0;
+        }
+        // price = reserveUSDT / reserveTOP
+        require(reserveTOP > 0, "NO_LIQ");
+        return (reserveUSDT * 1e18) / reserveTOP;
+    }
+
 }
