@@ -61,6 +61,13 @@ npx hardhat run scripts/top_swap.js --network bscTestnet
 
 ```
 
+# 代码验证
+```shell
+#  会生成  verify 脚本，验证对应的合约代码
+npx hardhat run scripts/deploy_verify.js --network bscTestnet
+
+```
+
 # 测试
 ```shell
 # staking 质押
@@ -78,13 +85,10 @@ npx hardhat run test/nodenft_nft.js --network bscTestnet
 # top 转账
 npx hardhat run test/top_transfer.js --network bscTestnet
 
+# referrals 获取上级代理
+npx hardhat run test/referral_referrals.js --network bscTestnet
 
 
 ```
 
-# 代码验证
-```shell
 
-npx hardhat run scripts/deploy_verify.js --network bscTestnet
-
-```
