@@ -75,14 +75,14 @@ contract TOP is  ExcludedFromFeeList, FirstLaunch, ERC20 {
     }
 
     function updatePoolReserve() public {
-        require(block.timestamp >= poolStatus.t + 1 minutes, "1 minutes");
+        require(block.timestamp >= poolStatus.t + 10 minutes, "1 minutes");
         poolStatus.t = uint40(block.timestamp);
         (uint112 reserveU, , ) = IPancakePair(pancakePair).getReserves();
         poolStatus.bal = reserveU;
     }
 
     function updatePoolReserve(uint112 reserveU) private {
-        if (block.timestamp >= poolStatus.t + 1 minutes) {
+        if (block.timestamp >= poolStatus.t + 10 minutes) {
             poolStatus.t = uint40(block.timestamp);
             poolStatus.bal = reserveU;
         }
