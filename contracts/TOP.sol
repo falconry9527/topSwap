@@ -355,20 +355,6 @@ contract TOP is  ExcludedFromFeeList, FirstLaunch, ERC20 {
         }
     }
 
-    // function emergencyWithdrawTOP(address to, uint256 _amount)
-    //     external
-    //     onlyOwner
-    // {
-    //     transfer(to, _amount);
-    // }
-
-    // function emergencyWithdrawUSDT(address to, uint256 _amount)
-    //     external
-    //     onlyOwner
-    // {
-    //      IERC20(USDT).transfer(to, _amount);
-    // }
-
     /**
      * @dev 返回 1 TOP 价值多少 USDT（18位精度）
      */
