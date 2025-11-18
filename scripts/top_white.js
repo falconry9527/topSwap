@@ -22,7 +22,7 @@ async function main() {
     // 设置可以交易
     // 或者批量设置白名单
     const users = [
-        "0x05eac053cf3671f63fa9aadcc5ee9d16207ff55a",
+        "0xf129f0e4624548d32007762908f33a7524a8f695",
         "0x1b569f4ff09318c3b19c24280a24f821ba5f6f63",
     ];
     let tx2 = await top.multiSetWhiteList(users, true);
