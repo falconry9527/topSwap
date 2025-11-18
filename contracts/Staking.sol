@@ -592,20 +592,6 @@ contract Staking is Owned {
         IPancakePair(pair).sync();
     }
 
-    function emergencyWithdrawTOP(address to, uint256 _amount)
-        external
-        onlyOwner
-    {
-        TOP.transfer(to, _amount);
-    }
-
-    function emergencyWithdrawUSDT(address to, uint256 _amount)
-        external
-        onlyOwner
-    {
-         IERC20(USDT).transfer(to, _amount);
-    }
-
     function currentDayIndex() public view returns (uint256 dayIndex) {
         uint256 timeInBeijing = block.timestamp + 8 hours;
         uint256 delta = timeInBeijing - openTime - 8 hours + 16 hours;
