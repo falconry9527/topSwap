@@ -19,11 +19,14 @@ contract Divid is IDivid, ReentrancyGuard {
     uint256 public nextNftId = 0;
     uint256 public nftAccumulated;
     uint256 public constant nftTHRESHOLD = 100 * 1e18;
+    uint256 public nftAccumulatedAll;
 
     // 节点分红
     uint256 public nodeBatchSize = 20;
     uint256 public nextNodeIndex = 0;
     uint256 public nodeAccumulated;
+    uint256 public nodeAccumulatedAll;
+
     uint256 public constant nodeTHRESHOLD = 100 * 1e18;
 
     // 授权地址
@@ -67,6 +70,7 @@ contract Divid is IDivid, ReentrancyGuard {
         require(tetherAmount > 0, "Zero amount");
         usdt.safeTransferFrom(msg.sender, address(this), tetherAmount);
         nftAccumulated += tetherAmount;
+        nftAccumulatedAll+= tetherAmount;
         uint256 nftAccumulatedSend = nftAccumulated / nftTHRESHOLD * nftTHRESHOLD;
 
         uint256 totalNft = nft.MAX_NFT();
@@ -108,6 +112,7 @@ contract Divid is IDivid, ReentrancyGuard {
         require(tetherAmount > 0, "Zero amount");
         usdt.safeTransferFrom(msg.sender, address(this), tetherAmount);
         nodeAccumulated += tetherAmount;
+        nodeAccumulatedAll += tetherAmount;
         uint256 nodeAccumulatedSend = nodeAccumulated / nodeTHRESHOLD * nodeTHRESHOLD;
         uint256 totalNodes = nft.MAX_NFT() * 10 ;
         if (totalNodes == 0) return;

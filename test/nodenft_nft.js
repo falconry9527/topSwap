@@ -22,7 +22,7 @@ async function main() {
     console.log(` getEligibleNFTCount ${count}`);
 
     // 批量读取（防止RPC超时）
-    const batchSize = 5;
+    const batchSize = 100;
     for (let start = 1; start < batchSize; start += 1) {
        const add = await NodeNFT.ownerOf(start);
        console.log(` index ${start} owner  ${add}`);
