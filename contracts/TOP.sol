@@ -68,6 +68,7 @@ contract TOP is  ExcludedFromFeeList, FirstLaunch, ERC20 {
     function setPresale(bool _presale) external onlyOwner {
         presale = _presale;
         updatePoolReserve();
+        launch();
     }
 
     function setColdTime(uint40 _coldTime) external onlyOwner {
@@ -133,7 +134,6 @@ contract TOP is  ExcludedFromFeeList, FirstLaunch, ERC20 {
         excludeFromFee(dividAdress);
         excludeFromFee(marketingAddress);
         excludeFromFee(NODENFT);
-        launch();
     }
 
     function _transfer(
