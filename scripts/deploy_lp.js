@@ -28,10 +28,10 @@ async function main() {
     const totalSupply = await TOP.totalSupply();
     // 按比例分配代币
     // const liquidityAmount = totalSupply * 70n / 100n; // 流动性池 70%
-    const liquidityAmount = ethers.parseUnits("10", 18);
+    const liquidityAmount = ethers.parseUnits("1", 18);
     // 从 .env 文件读取 USDT 数量（单位：18位小数）
-    const lpUsdtValue =  ethers.parseUnits("10", 18); 
-    const usdtForLiquidity =  ethers.parseUnits("10", 18);
+    const lpUsdtValue =  ethers.parseUnits("1", 18); 
+    const usdtForLiquidity =  ethers.parseUnits("1", 18);
     console.log(`USDT for liquidity (from .env): ${lpUsdtValue} USDT`);
 
     // 授权 Router 使用 TOP 和 USDT
