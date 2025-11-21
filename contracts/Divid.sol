@@ -40,14 +40,6 @@ contract Divid is Owned,IDivid, ReentrancyGuard {
         owner = msg.sender;
     }
 
-    function setNftBatchSize(uint256 _size) external onlyOwner {
-        nftBatchSize = _size;
-    }
-
-    function setNodeBatchSize(uint256 _size) external onlyOwner {
-        nodeBatchSize = _size;
-    }
-
     /// @notice NFT 分红
     function executeNftDividend(uint256 tetherAmount) external nonReentrant {
         require(tetherAmount > 0, "Zero amount");
