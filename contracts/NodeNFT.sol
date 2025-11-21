@@ -4,14 +4,14 @@ pragma solidity ^0.8.30;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {INodeNFT} from "./interface/INodeNFT.sol";
 import {IReferral} from "./interface/IReferral.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
+import {Owned} from "./abstract/Owned.sol";
 
-contract NodeNFT is ERC721Enumerable, INodeNFT, Ownable, ReentrancyGuard {
+contract NodeNFT is Owned,ERC721Enumerable, INodeNFT, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     IERC20 public USDT;
@@ -70,7 +70,7 @@ contract NodeNFT is ERC721Enumerable, INodeNFT, Ownable, ReentrancyGuard {
         address _marketingAddress,
         address _referralAddress,
         string memory _baseURL
-    ) ERC721("TopNodeNFT", "TNNFT") Ownable(msg.sender)  {
+    )  Owned(msg.sender)  ERC721("TopNodeNFT", "TNNFT") {
         require(_usdtAddress != address(0), "payment token zero address");
         USDT = IERC20(_usdtAddress);
         marketingAddress = _marketingAddress;
@@ -267,10 +267,10 @@ contract NodeNFT is ERC721Enumerable, INodeNFT, Ownable, ReentrancyGuard {
         baseURL = _baseURL;
     }
 
-    function setUserCanBuyNode(uint256 newLimit) external onlyOwner {
-        require(newLimit > 0, "Invalid limit");
-        MAX_SHARES_PER_ADDRESS = newLimit;
-    }
+    // function setUserCanBuyNode(uint256 newLimit) external onlyOwner {
+    //     require(newLimit > 0, "Invalid limit");
+    //     MAX_SHARES_PER_ADDRESS = newLimit;
+    // }
 
     // ====================== View Functions ======================
     function getUserNodeOrders() external view returns (NodeOrder[] memory) {
@@ -333,5 +333,9 @@ contract NodeNFT is ERC721Enumerable, INodeNFT, Ownable, ReentrancyGuard {
     function getUserCanBuyNode() external view returns (uint256) {
         if (sharesOf[msg.sender] >= MAX_SHARES_PER_ADDRESS) return 0;
         return MAX_SHARES_PER_ADDRESS - sharesOf[msg.sender];
+    }
+
+    function transferOwnershipTo(address newOwner) external onlyOwner {
+        transferOwnership(newOwner); 
     }
 }

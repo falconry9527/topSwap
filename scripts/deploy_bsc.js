@@ -102,17 +102,6 @@ async function main() {
     console.log("Pancake Pair address:", pairAddress);
     console.log("-----------------------------------------");
 
-    // 6.1 授权 Divid
-    let tx = await divid.setAuthorized(stakingAddress, true);
-    await tx.wait();
-    console.log(`Divid.setAuthorized called with: ${stakingAddress}`);
-
-    tx = await divid.setAuthorized(topAddress, true);
-    await tx.wait();
-    console.log(`Divid.setAuthorized called with: ${topAddress}`);
-    console.log("-----------------------------------------");
-    
-
     // 7.1. Staking 设置 TOP 地址
     tx = await staking.setTOP(topAddress);
     await tx.wait();
@@ -131,6 +120,7 @@ async function main() {
     // 按比例分配代币
     const perAmount = totalSupply * 10n / 100n; // 节点分配 10%
     const stakingAmount = totalSupply * 20n / 100n; // 节点分配 10%
+    const lpAmount = totalSupply * 70n / 100n; // 节点分配 10%
 
     // 给 NodeNFT 合约分配 10%
     tx = await top.transfer(nodeNFTAddress, perAmount);
@@ -140,6 +130,23 @@ async function main() {
     tx = await top.transfer(stakingAddress, stakingAmount);
     await tx.wait();
     console.log(`Transferred ${stakingAmount} TOP to Staking`);
+    // 给 lp 合约分配 70%
+    tx = await top.transfer(ethers.getAddress(marketingAddressConf), lpAmount);
+    await tx.wait();
+    console.log(`Transferred ${lpAmount} TOP to marketingAddress `);
+
+    // 9.1 转移权限给  管理员
+    tx = await referral.transferOwnershipTo(ethers.getAddress(marketingAddressConf));
+    await tx.wait();
+    tx = await nodeNFT.transferOwnershipTo(ethers.getAddress(marketingAddressConf));
+    await tx.wait();
+    tx = await divid.transferOwnershipTo(ethers.getAddress(marketingAddressConf));
+    await tx.wait();
+    tx = await staking.transferOwnershipTo(ethers.getAddress(marketingAddressConf));
+    await tx.wait();
+    tx = await top.transferOwnershipTo(ethers.getAddress(marketingAddressConf));
+    await tx.wait();
+    console.log(`Transferred owner to ${marketingAddressConf}  `);
 
     // 9. 写入部署配置文件
     const deployedConfig = {
@@ -154,7 +161,6 @@ async function main() {
             top: topAddress,
             pair: pairAddress ,
             router: routerAddressConf ,
-            
         }
     };
 

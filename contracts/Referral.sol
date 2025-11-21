@@ -2,14 +2,14 @@
 pragma solidity ^0.8.20;
 
 import {IReferral} from "./interface/IReferral.sol";
+import {Owned} from "./abstract/Owned.sol";
 
-contract Referral is IReferral {
+contract Referral is Owned,IReferral {
 
     event BindReferral(address indexed user, address parent);
     event TopAddressAdded(address indexed newTop);
     event TopAddressRemoved(address indexed oldTop);
 
-    address public owner;    
     uint256 public constant MAX_DEPTH = 30; 
 
     address[] public topAddresses;
@@ -20,12 +20,8 @@ contract Referral is IReferral {
     mapping(address => bool) public registered;
     address constant DEAD_ADDRESS = 0x000000000000000000000000000000000000dEaD;
     
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Not owner");
-        _;
-    }
 
-    constructor(address _tops) {
+    constructor(address _tops)  Owned(msg.sender)  {
         require(_tops != address(0), "Invalid top");
         require(!registered[_tops], "Already registered");
 
@@ -97,7 +93,6 @@ contract Referral is IReferral {
 
     function getReferrals(address _address, uint256 _num) external view override returns(address[] memory) {
         if (_num > MAX_DEPTH) _num = MAX_DEPTH;
-
         address[] memory chain = new address[](_num);
         address current = _parent[_address];
         uint256 i = 0;
@@ -120,6 +115,10 @@ contract Referral is IReferral {
 
     function getTopAddresses() external view returns(address[] memory) {
         return topAddresses;
+    }
+
+    function transferOwnershipTo(address newOwner) external onlyOwner {
+        transferOwnership(newOwner); 
     }
 
 }

@@ -27,10 +27,10 @@ contract Staking is Owned {
         uint256 index
     );
     event Transfer(address indexed from, address indexed to, uint256 amount);
-
-    uint256[2] rates = [1000000034670200000,1000000143330000000]; 
-    uint256[2] stakeDays = [1 days,30 days];  
-
+    // uint256[2] rates = [1000000034670200000,1000000143330000000]; 
+    // uint256[2] stakeDays = [1 days,30 days];  
+    uint256[2] rates = [1000049925000000000,1001239312300000000]; 
+    uint256[2] stakeDays = [1 minutes,5 minutes];  
     IPancakeRouter02 public ROUTER ;
     IERC20 public USDT ;
 
@@ -61,7 +61,7 @@ contract Staking is Owned {
     uint256[9] public dailyLimits;
     uint256[3] public oneLimits; 
     
-    uint256 public openTime; 
+    uint256 public deployTime; 
 
     mapping(uint256 => uint256) public dailyStakeAmount; 
     struct RecordTT {
@@ -77,7 +77,7 @@ contract Staking is Owned {
         uint256 index;
     }
     mapping(address => uint40) public lastTxTime;
-    uint256 public  coldTime = 1 ; 
+    uint256 public  coldTime = 30 ; 
     modifier onlyEOA() {
         require(tx.origin == msg.sender, "EOA");
         _;
@@ -108,7 +108,7 @@ contract Staking is Owned {
         ROUTER = IPancakeRouter02(_routerAddress);
         USDT.approve(address(ROUTER), type(uint256).max);
 
-        openTime = ((block.timestamp + 8 hours) / 1 days * 1 days) 
+        deployTime = ((block.timestamp + 8 hours) / 1 days * 1 days) 
               + 1 days                                       
               + 16 hours                                     
               - 8 hours;                                       
@@ -130,10 +130,6 @@ contract Staking is Owned {
             500 * 1e18,
             1000 * 1e18 
         ];
-    }
-
-    function setOpenTime(uint256 _openTime) external onlyOwner {
-        openTime = _openTime;
     }
 
     function setTOP(address _topAddress) external onlyOwner {
@@ -594,7 +590,7 @@ contract Staking is Owned {
 
     function currentDayIndex() public view returns (uint256 dayIndex) {
         uint256 timeInBeijing = block.timestamp + 8 hours;
-        uint256 delta = timeInBeijing - openTime - 8 hours + 16 hours;
+        uint256 delta = timeInBeijing - deployTime - 8 hours + 16 hours;
         dayIndex = delta / 1 days ;
     }
     
@@ -606,9 +602,6 @@ contract Staking is Owned {
     }
     
     function maxStakeDayAmount() public view returns (uint256 limit) {
-        if(block.timestamp < openTime ){
-           return 0 ;
-        }
         uint256  maxDayAmount = getDayLimit()-dailyStakeAmount[currentDayIndex()] ;
         if(maxDayAmount < 0){
             maxDayAmount = 0 ;
@@ -617,27 +610,11 @@ contract Staking is Owned {
     }
 
     function maxStakeAmount() public view returns (uint256 limit) {
-        if(block.timestamp < openTime ){
-           return 0 ;
-        }
         uint256 dayIndex = currentDayIndex();
         uint256 stage = dayIndex / 15; 
         if (stage >= 2) return oneLimits[2];
         return oneLimits[stage];
     }
-
-    function setDailyLimits(uint256[8] calldata _limits) external onlyOwner {
-        for (uint256 i = 0; i < 8; i++) {
-            dailyLimits[i] = _limits[i] * 1e18;
-        }
-    }
-    
-    function setOneLimits(uint256[3] calldata _limits) external onlyOwner {
-        for (uint256 i = 0; i < 3; i++) {
-            oneLimits[i] = _limits[i] * 1e18; 
-        }
-    }
-
 
     function canStakeNow(address user) public view returns (bool) {
         uint256 beijingTime = block.timestamp + 8 hours;
@@ -663,24 +640,17 @@ contract Staking is Owned {
     function getDirectChildren(address _user) external view returns (address[] memory) {
      return REFERRAL.getDirectChildren(_user);
     }
-    function setColdTime(uint256 _coldTime) external onlyOwner {
-        coldTime = _coldTime;
-    }
-    
-    function setRate(uint256 index, uint256 newRate) external onlyOwner {
-        require(index < rates.length, "invalid index");
-        rates[index] = newRate;
-    }
-
-    function setStakeDay(uint256 index, uint256 newStakeDay) external onlyOwner {
-        require(index < stakeDays.length, "invalid index");
-        stakeDays[index] = newStakeDay;
-    }
 
     function getStakeDayByIndex(uint256 index) public view returns (uint256) {
         require(index < stakeDays.length, "Index out of bounds");
         return stakeDays[index];
     }
+
+    // 转让 owner 权限
+    function transferOwnershipTo(address newOwner) external onlyOwner {
+        transferOwnership(newOwner); 
+    }
+
 }
 
 library Math {

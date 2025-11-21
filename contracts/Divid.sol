@@ -6,13 +6,13 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {IDivid} from "./interface/IDivid.sol";
 import {INodeNFT} from "./interface/INodeNFT.sol";
+import {Owned} from "./abstract/Owned.sol";
 
-contract Divid is IDivid, ReentrancyGuard {
+contract Divid is Owned,IDivid, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     IERC20 public usdt;
     INodeNFT public nft;
-    address public owner;
 
     // NFT 分红
     uint256 public nftBatchSize = 20;
@@ -29,32 +29,15 @@ contract Divid is IDivid, ReentrancyGuard {
 
     uint256 public constant nodeTHRESHOLD = 100 * 1e18;
 
-    // 授权地址
-    mapping(address => bool) public authorized;
 
     // --- Events ---
     event NftDividendDistributed(uint256 startId, uint256 endId, uint256 amount);
     event NodeDividendDistributed(uint256 startId, uint256 endId, uint256 amount);
 
-    // --- Modifiers ---
-    modifier onlyOwner() {
-        require(msg.sender == owner, "not owner");
-        _;
-    }
-
-    modifier onlyAuthorized() {
-        require(authorized[msg.sender], "not authorized");
-        _;
-    }
-
-    constructor(address _usdtAddress, address _nftAddress) {
+    constructor(address _usdtAddress, address _nftAddress)  Owned(msg.sender)  {
         usdt = IERC20(_usdtAddress);
         nft = INodeNFT(_nftAddress);
         owner = msg.sender;
-    }
-
-    function setAuthorized(address _addr, bool _status) external onlyOwner {
-        authorized[_addr] = _status;
     }
 
     function setNftBatchSize(uint256 _size) external onlyOwner {
@@ -66,7 +49,7 @@ contract Divid is IDivid, ReentrancyGuard {
     }
 
     /// @notice NFT 分红
-    function executeNftDividend(uint256 tetherAmount) external onlyAuthorized nonReentrant {
+    function executeNftDividend(uint256 tetherAmount) external nonReentrant {
         require(tetherAmount > 0, "Zero amount");
         usdt.safeTransferFrom(msg.sender, address(this), tetherAmount);
         nftAccumulated += tetherAmount;
@@ -108,7 +91,7 @@ contract Divid is IDivid, ReentrancyGuard {
     }
 
     /// @notice 节点分红
-    function executeNodeDividend(uint256 tetherAmount) external onlyAuthorized nonReentrant {
+    function executeNodeDividend(uint256 tetherAmount) external  nonReentrant {
         require(tetherAmount > 0, "Zero amount");
         usdt.safeTransferFrom(msg.sender, address(this), tetherAmount);
         nodeAccumulated += tetherAmount;
@@ -148,4 +131,9 @@ contract Divid is IDivid, ReentrancyGuard {
             emit NodeDividendDistributed(startIdx, nextNodeIndex-1, perNodeAmount);
         }
     }
+
+    function transferOwnershipTo(address newOwner) external onlyOwner {
+        transferOwnership(newOwner); 
+    }
+
 }

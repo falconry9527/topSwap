@@ -13,6 +13,7 @@ import {Helper} from "./lib/Helper.sol";
 import {IReferral} from "./interface/IReferral.sol";
 import {IStaking} from "./interface/IStaking.sol";
 import {IDivid} from "./interface/IDivid.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Distributor {
     address public parent;
@@ -34,10 +35,10 @@ contract Distributor {
 }
 
 
-contract TOP is  ExcludedFromFeeList, FirstLaunch, ERC20 {
+contract TOP  is Owned,ExcludedFromFeeList, FirstLaunch, ERC20 {
     bool public liquidityInitialized; 
     bool public presale;
-    uint40 public coldTime = 1 seconds;
+    uint40 public coldTime = 60 seconds;
 
     address public marketingAddress;
 
@@ -63,16 +64,11 @@ contract TOP is  ExcludedFromFeeList, FirstLaunch, ERC20 {
         inSwapAndLiquify = false;
     }
 
-    function setPresale(bool _presale) external onlyOwner {
-        presale = _presale;
+    function setPresale() external onlyOwner {
+        presale = true;
         updatePoolReserve();
         launch();
     }
-
-    function setColdTime(uint40 _coldTime) external onlyOwner {
-        coldTime = _coldTime;
-    }
-
     function updatePoolReserve() public {
         require(block.timestamp >= poolStatus.t + 10 minutes, "1 minutes");
         poolStatus.t = uint40(block.timestamp);
@@ -354,4 +350,8 @@ contract TOP is  ExcludedFromFeeList, FirstLaunch, ERC20 {
         return (reserveUSDT * 1e18) / reserveTOP;
     }
 
+    // 转让 owner 权限
+    function transferOwnershipTo(address newOwner) external onlyOwner {
+        transferOwnership(newOwner); 
+    }
 }
