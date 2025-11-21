@@ -131,9 +131,4 @@ contract Divid is Owned,IDivid, ReentrancyGuard {
             emit NodeDividendDistributed(startIdx, nextNodeIndex-1, perNodeAmount);
         }
     }
-
-    function transferOwnershipTo(address newOwner) external onlyOwner {
-        transferOwnership(newOwner); 
-    }
-
 }

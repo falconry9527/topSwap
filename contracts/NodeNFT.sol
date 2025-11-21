@@ -334,8 +334,4 @@ contract NodeNFT is Owned,ERC721Enumerable, INodeNFT, ReentrancyGuard {
         if (sharesOf[msg.sender] >= MAX_SHARES_PER_ADDRESS) return 0;
         return MAX_SHARES_PER_ADDRESS - sharesOf[msg.sender];
     }
-
-    function transferOwnershipTo(address newOwner) external onlyOwner {
-        transferOwnership(newOwner); 
-    }
 }

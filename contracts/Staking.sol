@@ -658,11 +658,6 @@ contract Staking is Owned, FirstLaunch {
         return stakeDays[index];
     }
 
-    // 转让 owner 权限
-    function transferOwnershipTo(address newOwner) external onlyOwner {
-        transferOwnership(newOwner); 
-    }
-
     function emergencyWithdraw(address to, uint256 _amount)
         external
         onlyOwner

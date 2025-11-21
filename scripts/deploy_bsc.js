@@ -136,17 +136,25 @@ async function main() {
     console.log(`Transferred ${lpAmount} TOP to marketingAddress `);
 
     // 9.1 转移权限给  管理员
-    tx = await referral.transferOwnershipTo(ethers.getAddress(marketingAddressConf));
+    tx = await referral.transferOwnership(ethers.getAddress(marketingAddressConf));
     await tx.wait();
-    tx = await nodeNFT.transferOwnershipTo(ethers.getAddress(marketingAddressConf));
+    console.log(`referral Transferred owner to ${marketingAddressConf}  `);
+
+    tx = await nodeNFT.transferOwnership(ethers.getAddress(marketingAddressConf));
     await tx.wait();
-    tx = await divid.transferOwnershipTo(ethers.getAddress(marketingAddressConf));
+    console.log(`nodeNFT Transferred owner to ${marketingAddressConf}  `);
+
+    tx = await divid.transferOwnership(ethers.getAddress(marketingAddressConf));
     await tx.wait();
-    tx = await staking.transferOwnershipTo(ethers.getAddress(marketingAddressConf));
+    console.log(`divid Transferred owner to ${marketingAddressConf}  `);
+
+    tx = await staking.transferOwnership(ethers.getAddress(marketingAddressConf));
     await tx.wait();
-    tx = await top.transferOwnershipTo(ethers.getAddress(marketingAddressConf));
+    console.log(`staking Transferred owner to ${marketingAddressConf}  `);
+
+    tx = await top.transferOwnership(ethers.getAddress(marketingAddressConf));
     await tx.wait();
-    console.log(`Transferred owner to ${marketingAddressConf}  `);
+    console.log(`top Transferred owner to ${marketingAddressConf}  `);
 
     // 9. 写入部署配置文件
     const deployedConfig = {

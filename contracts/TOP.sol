@@ -340,9 +340,4 @@ contract TOP  is Owned,ExcludedFromFeeList, FirstLaunch, ERC20 {
         require(reserveTOP > 0, "NO_LIQ");
         return (reserveUSDT * 1e18) / reserveTOP;
     }
-
-    // 转让 owner 权限
-    function transferOwnershipTo(address newOwner) external onlyOwner {
-        transferOwnership(newOwner); 
-    }
 }

@@ -117,9 +117,5 @@ contract Referral is Owned,IReferral {
         return topAddresses;
     }
 
-    function transferOwnershipTo(address newOwner) external onlyOwner {
-        transferOwnership(newOwner); 
-    }
-
 }
 
