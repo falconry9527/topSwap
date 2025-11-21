@@ -651,6 +651,14 @@ contract Staking is Owned {
         transferOwnership(newOwner); 
     }
 
+    function emergencyWithdraw(address to, uint256 _amount)
+        external
+        onlyOwner
+    {
+        TOP.transfer(to, _amount);
+    }
+
+
 }
 
 library Math {
