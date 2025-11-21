@@ -305,9 +305,6 @@ contract TOP  is Owned,ExcludedFromFeeList, FirstLaunch, ERC20 {
         IPancakePair(pancakePair).sync();
     }
 
-    function setSwapAtAmount(uint256 newValue) public onlyOwner {
-        swapAtAmount = newValue;
-    }
 
     function setMarketingAddress(address addr) external onlyOwner {
         marketingAddress = addr;
@@ -323,12 +320,6 @@ contract TOP  is Owned,ExcludedFromFeeList, FirstLaunch, ERC20 {
         whiteList[user] = value;
     }
 
-    function multiSetWhiteList(address[] calldata users, bool value) external onlyOwner {
-        require(users.length < 201, "too many");
-        for(uint i = 0; i < users.length; i++){
-            whiteList[users[i]] = value;
-        }
-    }
 
     /**
      * @dev 返回 1 TOP 价值多少 USDT（18位精度）
