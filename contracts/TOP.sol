@@ -42,8 +42,6 @@ contract TOP is  ExcludedFromFeeList, FirstLaunch, ERC20 {
     address public marketingAddress;
 
     uint256 public swapAtAmount = 1 ether;
-
-    mapping(address => bool) public rewardList;
     mapping(address => bool) public whiteList; 
 
     mapping(address => uint256) public tOwnedU;
@@ -141,7 +139,6 @@ contract TOP is  ExcludedFromFeeList, FirstLaunch, ERC20 {
         address recipient,
         uint256 amount
     ) internal virtual override  {
-        require(isReward(sender) == 0, "isReward != 0 !");
         if ( inSwapAndLiquify ||
             _isExcludedFromFee[sender] ||
             _isExcludedFromFee[recipient]
@@ -334,24 +331,6 @@ contract TOP is  ExcludedFromFeeList, FirstLaunch, ERC20 {
         require(users.length < 201, "too many");
         for(uint i = 0; i < users.length; i++){
             whiteList[users[i]] = value;
-        }
-    }
-
-    function multi_bclist(address[] calldata addresses, bool value)
-        public
-        onlyOwner
-    {
-        require(addresses.length < 201);
-        for (uint256 i; i < addresses.length; ++i) {
-            rewardList[addresses[i]] = value;
-        }
-    }
-
-    function isReward(address account) public view returns (uint256) {
-        if (rewardList[account]) {
-            return 1;
-        } else {
-            return 0;
         }
     }
 
