@@ -10,8 +10,9 @@ import {IReferral} from "./interface/IReferral.sol";
 import {Owned} from "./abstract/Owned.sol";
 import {IPancakeFactory} from "./interface/IPancakeFactory.sol";
 import {IDivid} from "./interface/IDivid.sol";
+import {FirstLaunch} from "./abstract/FirstLaunch.sol";
 
-contract Staking is Owned {
+contract Staking is Owned, FirstLaunch {
     event Staked(
         address indexed user,
         uint256 amount,
@@ -64,6 +65,8 @@ contract Staking is Owned {
     uint256 public deployTime; 
 
     mapping(uint256 => uint256) public dailyStakeAmount; 
+    bool public presale;
+
     struct RecordTT {
         uint40 stakeTime;
         uint256 tamount;
@@ -108,10 +111,7 @@ contract Staking is Owned {
         ROUTER = IPancakeRouter02(_routerAddress);
         USDT.approve(address(ROUTER), type(uint256).max);
 
-        deployTime = ((block.timestamp + 8 hours) / 1 days * 1 days) 
-              + 1 days                                       
-              + 16 hours                                     
-              - 8 hours;                                       
+        deployTime = block.timestamp ;                                       
 
         dailyLimits = [
             30000 * 1e18,
@@ -170,6 +170,7 @@ contract Staking is Owned {
 
 
     function stake(uint256 _amount, uint256 amountOutMin,uint8 _stakeIndex) external onlyEOA txCold {
+        require(presale, "pre");
         require(_amount >= 1e18, "amount < 1");
         require(_amount <= maxStakeAmount(), "Exceed limit");
         require(_stakeIndex<=1,"<=1");
@@ -589,12 +590,14 @@ contract Staking is Owned {
     }
 
     function currentDayIndex() public view returns (uint256 dayIndex) {
-        uint256 timeInBeijing = block.timestamp + 8 hours;
-        uint256 delta = timeInBeijing - deployTime - 8 hours + 16 hours;
+        uint256 delta = block.timestamp - deployTime + 16 hours  ;
         dayIndex = delta / 1 days ;
     }
     
     function getDayLimit() public view returns (uint256 limit) {
+        if(!presale){
+            return 0;
+        }
         uint256 dayIndex = currentDayIndex();
         uint256 stage = dayIndex / 15; 
         if (stage >= 8) return dailyLimits[8];
@@ -602,6 +605,9 @@ contract Staking is Owned {
     }
     
     function maxStakeDayAmount() public view returns (uint256 limit) {
+        if(!presale){
+            return 0;
+        }
         uint256  maxDayAmount = getDayLimit()-dailyStakeAmount[currentDayIndex()] ;
         if(maxDayAmount < 0){
             maxDayAmount = 0 ;
@@ -629,6 +635,12 @@ contract Staking is Owned {
             }
         }
         return true;
+    }
+
+    function setPresale() external onlyOwner {
+        presale = true;
+        deployTime = block.timestamp ;                                       
+        launch();
     }
 
     function getReferral(address _user) external view returns (address) {
