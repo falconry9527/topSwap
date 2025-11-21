@@ -6,7 +6,8 @@ coverage
 coverage.json
 typechain
 typechain-types
-
+verify.sh
+verify2.sh
 # Hardhat files
 cache
 artifacts
