@@ -13,13 +13,13 @@ npx hardhat compile
 # 测试环境
 npx hardhat run scripts/deploy_bsc.js --network bscTestnet
 # 给pancke 新增流动性,TOP 默认70w，USDT 要修改 .env 的 LP_USDT 配置（默认70W）
-npx hardhat run scripts/deploy_lp.js --network bscTestnet
+# npx hardhat run scripts/deploy_lp.js --network bscTestnet
 # top 设置开放购买
 npx hardhat run scripts/top_presale.js --network bscTestnet
 
 # 主网环境
 npx hardhat run scripts/deploy_bsc.js --network bscMainnet
-npx hardhat run scripts/deploy_lp.js --network bscMainnet
+# npx hardhat run scripts/deploy_lp.js --network bscMainnet
 npx hardhat run scripts/top_presale.js --network bscMainnet
 ```
 
