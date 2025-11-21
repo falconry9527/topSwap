@@ -27,17 +27,17 @@ npx hardhat run scripts/top_presale.js --network bscMainnet
 # 配置
 ```shell
 # staking设置交易开放时间
-npx hardhat run scripts/staking_openTime.js --network bscTestnet
+# npx hardhat run scripts/staking_openTime.js --network bscTestnet
 # staking设置交易冷冻时间间隔
-npx hardhat run scripts/staking_coldTime.js --network bscTestnet
+# npx hardhat run scripts/staking_coldTime.js --network bscTestnet
 # staking设置盈利账户
 npx hardhat run scripts/staking_marketing.js --network bscTestnet
 # staking设置每日交易限额
-npx hardhat run scripts/staking_dayLimit.js --network bscTestnet
+# npx hardhat run scripts/staking_dayLimit.js --network bscTestnet
 # staking设置单笔交易限额
-npx hardhat run scripts/staking_oneLimit.js --network bscTestnet
+# npx hardhat run scripts/staking_oneLimit.js --network bscTestnet
 # staking设置交易时间和费率
-npx hardhat run scripts/staking_rate.js --network bscTestnet
+# npx hardhat run scripts/staking_rate.js --network bscTestnet
 # staking 提现 TOP
 npx hardhat run scripts/staking_withdraw.js --network bscTestnet
 
@@ -45,14 +45,14 @@ npx hardhat run scripts/staking_withdraw.js --network bscTestnet
 # nodenft 设置盈利账户
 npx hardhat run scripts/nodenft_marketing.js --network bscTestnet
 # nodenft 设置每个用户可以买的节点数
-npx hardhat run scripts/nodenft_nodes.js --network bscTestnet
+# npx hardhat run scripts/nodenft_nodes.js --network bscTestnet
 # nodenft 设置 url
 npx hardhat run scripts/nodenft_url.js --network bscTestnet
 
 # top 设置开放购买
 npx hardhat run scripts/top_presale.js --network bscTestnet
 # top 设置交易冷冻时间间隔
-npx hardhat run scripts/top_coldTime.js --network bscTestnet
+# npx hardhat run scripts/top_coldTime.js --network bscTestnet
 # top 设置白名单
 npx hardhat run scripts/top_white.js --network bscTestnet
 # top 设置 每次最小卖出TOP数量

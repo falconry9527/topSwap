@@ -21,7 +21,7 @@ async function main() {
     const Staking = await ethers.getContractAt("Staking", stakingAddress);
     const marketingAddress = ethers.getAddress("0x669da5bcc802e81dc1799d621426e68d2d0f1bb9") ;
     const amount = ethers.parseUnits("1000", 18); // 假设 TOP 是 18 位小数
-    let tx = await Staking.emergencyWithdrawTOP(marketingAddress,amount) ;
+    let tx = await Staking.emergencyWithdraw(marketingAddress,amount) ;
     console.log("emergencyWithdrawTOP", amount);
     console.log("交易已发送，tx hash:", tx.hash);
 
