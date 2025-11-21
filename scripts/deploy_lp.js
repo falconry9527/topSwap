@@ -27,11 +27,11 @@ async function main() {
     // 获取 TOP 总发行量（bigint 类型）
     const totalSupply = await TOP.totalSupply();
     // 按比例分配代币
-    const liquidityAmount = totalSupply * 70n / 100n; // 流动性池 70%
-
+    // const liquidityAmount = totalSupply * 70n / 100n; // 流动性池 70%
+    const liquidityAmount = ethers.parseUnits("10", 18);
     // 从 .env 文件读取 USDT 数量（单位：18位小数）
-    const lpUsdtValue = process.env.LP_USDT || "700"; // 默认 700
-    const usdtForLiquidity = ethers.parseUnits(lpUsdtValue, 18);
+    const lpUsdtValue =  ethers.parseUnits("10", 18); 
+    const usdtForLiquidity =  ethers.parseUnits("10", 18);
     console.log(`USDT for liquidity (from .env): ${lpUsdtValue} USDT`);
 
     // 授权 Router 使用 TOP 和 USDT

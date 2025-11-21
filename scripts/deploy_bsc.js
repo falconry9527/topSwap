@@ -120,8 +120,7 @@ async function main() {
     // 按比例分配代币
     const perAmount = totalSupply * 10n / 100n; // 节点分配 10%
     const stakingAmount = totalSupply * 20n / 100n; // 节点分配 10%
-    const lpAmount = totalSupply * 70n / 100n; // 节点分配 10%
-
+    const lpAmount = (totalSupply * 70n / 100n) - (10n * 10n ** 18n); // 留 1 TOP
     // 给 NodeNFT 合约分配 10%
     tx = await top.transfer(nodeNFTAddress, perAmount);
     await tx.wait();
