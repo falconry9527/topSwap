@@ -28,10 +28,9 @@ contract Staking is Owned, FirstLaunch {
         uint256 index
     );
     event Transfer(address indexed from, address indexed to, uint256 amount);
-    // uint256[2] rates = [1000000034670200000,1000000143330000000]; 
-    // uint256[2] stakeDays = [1 days,30 days];  
-    uint256[2] rates = [1000049925000000000,1001239312300000000]; 
-    uint256[2] stakeDays = [1 minutes,5 minutes];  
+    uint256[2] rates = [1000000034670200000,1000000143330000000]; 
+    uint256[2] stakeDays = [1 days,30 days];  
+
     IPancakeRouter02 public ROUTER ;
     IERC20 public USDT ;
 
@@ -191,6 +190,7 @@ contract Staking is Owned, FirstLaunch {
         uint8 _stakeIndex,
         address _parent
     ) external onlyEOA txCold {
+        require(presale, "pre");
         require(_amount >= 1e18, "amount < 1");
         require(_amount <= maxStakeAmount(), "Exceed limit");
         require(_stakeIndex<=1,"<=1");
@@ -621,7 +621,18 @@ contract Staking is Owned, FirstLaunch {
         if (stage >= 2) return oneLimits[2];
         return oneLimits[stage];
     }
-
+    // 设置 dailyLimits[index]
+    function setDailyLimit(uint256 index, uint256 value) external onlyOwner{
+        require(value >= 30000 * 1e18, "too low");
+        require(index < dailyLimits.length, "index out of range");
+        dailyLimits[index] = value;
+    }
+    // 设置 oneLimits[index]
+    function setOneLimit(uint256 index, uint256 value) external onlyOwner{
+        require(value >= 200 * 1e18, "too low");
+        require(index < oneLimits.length, "index out of range");
+        oneLimits[index] = value;
+    }
     function canStakeNow(address user) public view returns (bool) {
         uint256 beijingTime = block.timestamp + 8 hours;
         uint256 secondsInDay = beijingTime % 1 days;

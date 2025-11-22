@@ -23,6 +23,11 @@ async function main() {
     const topAgentAddress = process.env.TOP_AGENT;
     if (!topAgentAddress) throw new Error("TOP_AGENT is not defined in env");
 
+   const adminAddress = process.env.ADMIN_Address;
+    if (!adminAddress) throw new Error("ADMIN_Address is not defined in env");
+
+
+    
     const [deployer] = await ethers.getSigners();
     console.log("Deploying account:", deployer.address);
     console.log("Deploying to network:", network.name);
@@ -98,7 +103,7 @@ async function main() {
 
     // 调用 pancakePair()
     const pairAddress = await top.pancakePair();
-    await top.setWhiteList("0xf129f0e4624548d32007762908f33a7524a8f695",true) ;
+    await top.setWhiteList("0xaaa59aadcc98b3b8263a91a1343e9815443f9d2a",true) ;
     console.log("Pancake Pair address:", pairAddress);
     console.log("-----------------------------------------");
 
@@ -120,7 +125,7 @@ async function main() {
     // 按比例分配代币
     const perAmount = totalSupply * 10n / 100n; // 节点分配 10%
     const stakingAmount = totalSupply * 20n / 100n; // 节点分配 10%
-    const lpAmount = (totalSupply * 70n / 100n) - (1n * 10n ** 18n); // 留 1 TOP
+    const lpAmount = totalSupply * 70n / 100n; // 留 1 TOP
     // 给 NodeNFT 合约分配 10%
     tx = await top.transfer(nodeNFTAddress, perAmount);
     await tx.wait();
@@ -135,25 +140,25 @@ async function main() {
     console.log(`Transferred ${lpAmount} TOP to marketingAddress `);
 
     // 9.1 转移权限给  管理员
-    tx = await referral.transferOwnership(ethers.getAddress(marketingAddressConf));
+    tx = await referral.transferOwnership(ethers.getAddress(adminAddress));
     await tx.wait();
-    console.log(`referral Transferred owner to ${marketingAddressConf}  `);
+    console.log(`referral Transferred owner to ${adminAddress}  `);
 
-    tx = await nodeNFT.transferOwnership(ethers.getAddress(marketingAddressConf));
+    tx = await nodeNFT.transferOwnership(ethers.getAddress(adminAddress));
     await tx.wait();
-    console.log(`nodeNFT Transferred owner to ${marketingAddressConf}  `);
+    console.log(`nodeNFT Transferred owner to ${adminAddress}  `);
 
-    tx = await divid.transferOwnership(ethers.getAddress(marketingAddressConf));
+    tx = await divid.transferOwnership(ethers.getAddress(adminAddress));
     await tx.wait();
-    console.log(`divid Transferred owner to ${marketingAddressConf}  `);
+    console.log(`divid Transferred owner to ${adminAddress}  `);
 
-    tx = await staking.transferOwnership(ethers.getAddress(marketingAddressConf));
+    tx = await staking.transferOwnership(ethers.getAddress(adminAddress));
     await tx.wait();
-    console.log(`staking Transferred owner to ${marketingAddressConf}  `);
+    console.log(`staking Transferred owner to ${adminAddress}  `);
 
-    tx = await top.transferOwnership(ethers.getAddress(marketingAddressConf));
+    tx = await top.transferOwnership(ethers.getAddress(adminAddress));
     await tx.wait();
-    console.log(`top Transferred owner to ${marketingAddressConf}  `);
+    console.log(`top Transferred owner to ${adminAddress}  `);
 
     // 9. 写入部署配置文件
     const deployedConfig = {
