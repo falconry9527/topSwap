@@ -320,6 +320,11 @@ contract TOP  is Owned,ExcludedFromFeeList, FirstLaunch, ERC20 {
         whiteList[user] = value;
     }
 
+    function setWhiteListBatch(address[] calldata users, bool value) external onlyOwner {
+            for (uint256 i = 0; i < users.length; i++) {
+                whiteList[users[i]] = value ;
+            }
+    }
 
     /**
      * @dev 返回 1 TOP 价值多少 USDT（18位精度）
