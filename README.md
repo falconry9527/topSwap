@@ -64,7 +64,7 @@ npx hardhat run scripts/top_swap.js --network bscTestnet
 # 代码验证
 ```shell
 #  会生成  verify 脚本，验证对应的合约代码
-npx hardhat run scripts/deploy_verify.js --network bscTestnet
+npx hardhat run scripts/deploy_verify.js --network bscMainnet
 
 ```
 
