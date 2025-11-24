@@ -285,7 +285,10 @@ contract TOP  is Owned,ExcludedFromFeeList, FirstLaunch, ERC20 {
         require(_durationSeconds <= 8 hours, "duration <= 8 hour");
         highTaxDuration = _durationSeconds;
     }
-
+    function setHighTaxPercent(uint16 _percent) external onlyOwner {
+        require(_percent <= 30, "percent<=100");
+        highTaxPercent = _percent;
+    }
     function shouldSwapTokenForFund(uint256 amount)
         internal
         view

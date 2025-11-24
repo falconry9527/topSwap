@@ -125,7 +125,7 @@ contract Staking is Owned, FirstLaunch {
             400000 * 1e18,
             500000 * 1e18,
             600000 * 1e18,
-            type(uint256).max 
+            10000000 * 1e18
         ];
 
         oneLimits = [
