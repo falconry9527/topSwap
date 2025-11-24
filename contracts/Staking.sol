@@ -198,7 +198,7 @@ contract Staking is Owned, FirstLaunch {
         require(_amount >= 1e18, "amount < 1");
         require(_amount <= maxStakeAmount(), "Exceed limit");
         require(_stakeIndex<=1,"<=1");
-        require(canStakeNow(msg.sender) || currentDayIndex()>=120 ,"Exceed limit");
+        require(canStakeNow(msg.sender) ,"Exceed limit");
         require(REFERRAL.getReferral(msg.sender)== _parent, "parent error");
 
         if (_stakeIndex == 1) {
