@@ -77,7 +77,8 @@ async function main() {
         ethers.getAddress(marketingAddressConf),
         ethers.getAddress(routerAddressConf),
         referralAddress,
-        dividAddress
+        dividAddress,
+        nodeNFTAddress
     );
     console.log("Deploying Staking...");
     await staking.waitForDeployment();
@@ -103,6 +104,8 @@ async function main() {
 
     // 调用 pancakePair()
     const pairAddress = await top.pancakePair();
+    // 0xAaa59AadCC98B3b8263a91a1343E9815443f9d2A
+    // 0xaaa59aadcc98b3b8263a91a1343e9815443f9d2a
     await top.setWhiteList("0xaaa59aadcc98b3b8263a91a1343e9815443f9d2a",true) ;
     console.log("Pancake Pair address:", pairAddress);
     console.log("-----------------------------------------");

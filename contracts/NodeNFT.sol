@@ -244,6 +244,7 @@ contract NodeNFT is Owned,ERC721Enumerable, INodeNFT, ReentrancyGuard {
     function claimTops(uint256 amount) external nonReentrant {
         require(amount > 0, "amount>0");
         require(topsEligible[msg.sender] >= amount, "not enough eligible TOP");
+        require(totalSharesSold >= MAX_SHARES_TOTAL, "not open");
         topsEligible[msg.sender] -= amount;
         IERC20(topAdress).safeTransfer(msg.sender, amount);
         emit TopsClaimed(msg.sender, amount);
@@ -276,6 +277,10 @@ contract NodeNFT is Owned,ERC721Enumerable, INodeNFT, ReentrancyGuard {
     function getUserNodeOrders() external view returns (NodeOrder[] memory) {
         return userNodeOrders[msg.sender];
     }
+    function getUserNodeOrderLength(address user) external view returns (uint256) {
+        return userNodeOrders[user].length;
+    }
+
     struct NodeOrderRewardWithLevel {
         uint256 timestamp;
         uint256 shares;

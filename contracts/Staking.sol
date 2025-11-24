@@ -11,6 +11,7 @@ import {Owned} from "./abstract/Owned.sol";
 import {IPancakeFactory} from "./interface/IPancakeFactory.sol";
 import {IDivid} from "./interface/IDivid.sol";
 import {FirstLaunch} from "./abstract/FirstLaunch.sol";
+import {INodeNFT} from "./interface/INodeNFT.sol";
 
 contract Staking is Owned, FirstLaunch {
     event Staked(
@@ -55,6 +56,7 @@ contract Staking is Owned, FirstLaunch {
     mapping(address => uint256) public teamVirtuallyInvestValue;
     uint8 immutable maxD = 30 ;
     address public dividAdress ;
+    address public nodeNFTAddress ;
 
     RecordTT[] public t_supply;
 
@@ -79,13 +81,13 @@ contract Staking is Owned, FirstLaunch {
         uint256 index;
     }
     mapping(address => uint40) public lastTxTime;
-    uint256 public  coldTime = 30 ; 
+    uint40 public  coldTime = 2 seconds; 
     modifier onlyEOA() {
         require(tx.origin == msg.sender, "EOA");
         _;
     }
     modifier txCold() {
-     require(block.timestamp - lastTxTime[msg.sender] >= coldTime, "cold");
+     require(uint40(block.timestamp) - lastTxTime[msg.sender] >= coldTime, "cold");
        _;
     }
     struct DirectTeamInfo {
@@ -98,13 +100,15 @@ contract Staking is Owned, FirstLaunch {
         address _marketingAddress ,
         address _routerAddress,
         address _referralAddress,
-        address _dividAdress
+        address _dividAdress,
+        address _nodeNFTAddress
     )  Owned(msg.sender) {
         REFERRAL = IReferral(_referralAddress);
         marketingAddress = _marketingAddress;
         USDT = IERC20(_usdtAddress);
 
         dividAdress = _dividAdress ;
+        nodeNFTAddress=_nodeNFTAddress ;
         USDT.approve(dividAdress, type(uint256).max);
 
         ROUTER = IPancakeRouter02(_routerAddress);
@@ -633,13 +637,17 @@ contract Staking is Owned, FirstLaunch {
         require(index < oneLimits.length, "index out of range");
         oneLimits[index] = value;
     }
+    function setColdTime(uint40 value) external onlyOwner {
+        require(value <= 5 minutes, "coldTime must <= 5 minutes");
+        coldTime = value;
+    }
     function canStakeNow(address user) public view returns (bool) {
         uint256 beijingTime = block.timestamp + 8 hours;
         uint256 secondsInDay = beijingTime % 1 days;
         uint256 startTime = 16 hours;        // 16:00
-        uint256 endTime = 16 hours + 1 minutes; // 16:01
+        uint256 endTime = 16 hours + 2 minutes; // 16:02
         if (secondsInDay >= startTime && secondsInDay <= endTime) {
-            if (balances[user]>= 500 * 1e18) {
+            if (INodeNFT(nodeNFTAddress).getUserNodeOrderLength(user)>0) {
                 return true;
             } else {
                 return false;

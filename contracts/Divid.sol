@@ -18,7 +18,7 @@ contract Divid is Owned,IDivid, ReentrancyGuard {
     uint256 public nftBatchSize = 20;
     uint256 public nextNftId = 0;
     uint256 public nftAccumulated;
-    uint256 public constant nftTHRESHOLD = 100 * 1e18;
+    uint256 public constant nftTHRESHOLD = 50 * 1e18;
     uint256 public nftAccumulatedAll;
 
     // 节点分红

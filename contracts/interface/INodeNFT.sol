@@ -25,5 +25,8 @@ interface INodeNFT  {
 
     /// @notice 判断NFT 是否存在
     function claimed(uint256 tokenId) external view returns (bool);
+    
+    function getUserNodeOrderLength(address user) external view returns (uint256);
+
 
 }

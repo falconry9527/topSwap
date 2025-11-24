@@ -48,7 +48,7 @@ async function main() {
   // Staking
   commands.push(`# ----- Staking -----`);
   commands.push(
-    `npx hardhat verify --network ${network} ${deployed.contracts.staking} "${usdt}" "${marketing}" "${router}" "${deployed.contracts.referral}" "${deployed.contracts.divid}"`
+    `npx hardhat verify --network ${network} ${deployed.contracts.staking} "${usdt}" "${marketing}" "${router}" "${deployed.contracts.referral}" "${deployed.contracts.divid}"  "${deployed.contracts.nodeNFT}"`
   );
 
   // TOP

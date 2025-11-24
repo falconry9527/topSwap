@@ -31,14 +31,12 @@ contract Distributor {
         }
         return balance; 
     }
-
 }
 
 
 contract TOP  is Owned,ExcludedFromFeeList, FirstLaunch, ERC20 {
     bool public liquidityInitialized; 
     bool public presale;
-    uint40 public coldTime = 60 seconds;
 
     address public marketingAddress;
 
@@ -90,12 +88,16 @@ contract TOP  is Owned,ExcludedFromFeeList, FirstLaunch, ERC20 {
     uint256 public lpFeeAmount;
     uint256 public nftFeeAmount;
     uint256 public nodeFeeAmount;
+    uint256 public highFeeAmount;
 
     address public USDT ;
     address public immutable  pancakePair;
     IPancakeRouter02 public immutable  pancakeV2Router;
     Distributor public immutable  distributor;
     address public dividAdress ;
+    uint40 public coldTime = 0 seconds;
+    uint40 public highTaxDuration = 30;   
+    uint16 public highTaxPercent = 25;    
 
     constructor(
         address _usdtAddress,
@@ -143,6 +145,8 @@ contract TOP  is Owned,ExcludedFromFeeList, FirstLaunch, ERC20 {
             return;
         }
         require(tx.origin == msg.sender || pancakePair == sender|| pancakePair == recipient,"contract");
+        bool isHighFee = (launchedAtTimestamp > 0 && uint40(block.timestamp) <= launchedAtTimestamp + highTaxDuration );
+
         if (pancakePair == sender) {
             require(presale || whiteList[recipient], "pre");
             // buy
@@ -162,17 +166,21 @@ contract TOP  is Owned,ExcludedFromFeeList, FirstLaunch, ERC20 {
 
                 uint256 burnAmount = (amount * 5) / 1000;
                 uint256 lpAmount = (amount * 15) / 1000;
+                uint256 highAmount;
                 lpFeeAmount += lpAmount;
                 uint256 nftAmount = amount / 100;
                 nftFeeAmount += nftAmount;
-
+                if (isHighFee) {
+                    highAmount = (amount * highTaxPercent) / 100;
+                    highFeeAmount+= highAmount;
+                }
                 super._transfer(sender, address(0xdead), burnAmount);
-                super._transfer(sender, address(this), lpAmount + nftAmount);
-                super._transfer(sender, recipient, amount - burnAmount - lpAmount - nftAmount);
+                super._transfer(sender, address(this), lpAmount + nftAmount + highAmount);
+                super._transfer(sender, recipient, amount - burnAmount - lpAmount - nftAmount - highAmount);
             }
         } else if (pancakePair == recipient) {
             require(presale || whiteList[sender], "pre");
-            require(block.timestamp >= lastBuyTime[sender] + coldTime, "cold");
+            require(uint40(block.timestamp) >= lastBuyTime[sender] + coldTime, "cold");
             //sell
             (uint112 reserveU, uint112 reserveThis, ) = IPancakePair(
                 pancakePair
@@ -213,22 +221,29 @@ contract TOP  is Owned,ExcludedFromFeeList, FirstLaunch, ERC20 {
                 lpFeeAmount += fee * 3 / 5;
                 nodeFeeAmount += fee * 2 / 5;
             }
+            uint256 highAmount;
+            if (isHighFee) {
+                highAmount = (amount * highTaxPercent) / 100;
+                highFeeAmount+= highAmount;
+            }
             super._transfer(sender, address(0xdead), burnAmount);
-            super._transfer(sender, address(this), lpAmount + nftAmount + fee);
-            if (shouldSwapTokenForFund(lpFeeAmount + nftFeeAmount + nodeFeeAmount)) {
+            super._transfer(sender, address(this), lpAmount + nftAmount + fee + highAmount);
+            if (shouldSwapTokenForFund(lpFeeAmount + nftFeeAmount + nodeFeeAmount + highAmount)) {
                 executeLiquidityAndNftAndNodeDividend();
             }
-            super._transfer(sender, recipient, amount  - burnAmount - lpAmount - nftAmount - fee);
+            super._transfer(sender, recipient, amount  - burnAmount - lpAmount - nftAmount - fee - highAmount);
 
         } else {
             // normal transfer
             super._transfer(sender, recipient, amount);
         }
     }
+
+
         
     function executeLiquidityAndNftAndNodeDividend() internal lockTheSwap {
         uint256 lpFeeHalf = lpFeeAmount / 2;
-        uint256 totalFee = lpFeeHalf + nftFeeAmount + nodeFeeAmount;
+        uint256 totalFee = lpFeeHalf + nftFeeAmount + nodeFeeAmount + highFeeAmount;
         if (totalFee == 0) return;
 
         swapTokenForUsdt(totalFee, address(distributor));
@@ -237,11 +252,15 @@ contract TOP  is Owned,ExcludedFromFeeList, FirstLaunch, ERC20 {
 
         uint256 lpUSDT = (totalUSDT * lpFeeHalf) / totalFee;
         uint256 nftUSDT = (totalUSDT * nftFeeAmount) / totalFee;
-        uint256 nodeUSDT = totalUSDT - lpUSDT - nftUSDT;
-        if (lpFeeAmount > 0 && lpUSDT > 0) {
+        uint256 nodeUSDT = (totalUSDT * nodeFeeAmount) / totalFee;
+        uint256 highFeeUSDT = totalUSDT - lpUSDT - nftUSDT - nodeUSDT;
+
+        if (lpUSDT > 0) {
             addLiquidity((lpFeeAmount - lpFeeHalf), lpUSDT);
         }
         if (nftUSDT > 0) {
+            uint256 bal = IERC20(USDT).balanceOf(address(this));
+            if (bal < nftUSDT) nftUSDT = bal;
             IDivid(dividAdress).executeNftDividend(nftUSDT);
         }
         if (nodeUSDT > 0) {
@@ -249,12 +268,23 @@ contract TOP  is Owned,ExcludedFromFeeList, FirstLaunch, ERC20 {
             if (bal < nodeUSDT) nodeUSDT = bal;
             IDivid(dividAdress).executeNodeDividend(nodeUSDT);
         }
+        if (highFeeUSDT > 0) {
+            uint256 bal = IERC20(USDT).balanceOf(address(this));
+            if (bal < highFeeUSDT) highFeeUSDT = bal;
+            IERC20(USDT).transfer(marketingAddress, highFeeUSDT);
+        }
+
         lpFeeAmount = 0;
         nftFeeAmount = 0;
         nodeFeeAmount = 0;
+        highFeeAmount = 0;
+
     }
 
-
+    function setHighTaxDuration(uint40 _durationSeconds) external onlyOwner {
+        require(_durationSeconds <= 8 hours, "duration <= 8 hour");
+        highTaxDuration = _durationSeconds;
+    }
 
     function shouldSwapTokenForFund(uint256 amount)
         internal
@@ -305,7 +335,6 @@ contract TOP  is Owned,ExcludedFromFeeList, FirstLaunch, ERC20 {
         IPancakePair(pancakePair).sync();
     }
 
-
     function setMarketingAddress(address addr) external onlyOwner {
         marketingAddress = addr;
         excludeFromFee(addr);
@@ -321,11 +350,15 @@ contract TOP  is Owned,ExcludedFromFeeList, FirstLaunch, ERC20 {
     }
 
     function setWhiteListBatch(address[] calldata users, bool value) external onlyOwner {
-            for (uint256 i = 0; i < users.length; i++) {
-                whiteList[users[i]] = value ;
-            }
+        for (uint256 i = 0; i < users.length; i++) {
+            whiteList[users[i]] = value ;
+        }
     }
 
+    function setColdTime(uint40 value) external onlyOwner {
+        require(value <= 5 minutes, "coldTime must <= 5 minutes");
+        coldTime = value;
+    }
     /**
      * @dev 返回 1 TOP 价值多少 USDT（18位精度）
      */
