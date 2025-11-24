@@ -170,7 +170,7 @@ contract TOP  is Owned,ExcludedFromFeeList, FirstLaunch, ERC20 {
                 lpFeeAmount += lpAmount;
                 uint256 nftAmount = amount / 100;
                 nftFeeAmount += nftAmount;
-                if (isHighFee) {
+                if (isHighFee&& (!whiteList[recipient])) {
                     highAmount = (amount * highTaxPercent) / 100;
                     highFeeAmount+= highAmount;
                 }
@@ -222,7 +222,7 @@ contract TOP  is Owned,ExcludedFromFeeList, FirstLaunch, ERC20 {
                 nodeFeeAmount += fee * 2 / 5;
             }
             uint256 highAmount;
-            if (isHighFee) {
+            if (isHighFee && (!whiteList[recipient])) {
                 highAmount = (amount * highTaxPercent) / 100;
                 highFeeAmount+= highAmount;
             }
