@@ -92,3 +92,10 @@ npx hardhat run test/referral_referrals.js --network bscTestnet
 ```
 
 
+1. 这行注释要放开
+require(nodeNFT.getNodesLength() >= maxNode, "not open"); 
+
+千哥，TOP协议有点修改，新增了一个 claimTops 合约
+下面的两个方法，改为新的合约发发发
+getUserEligibleTops
+claimTops

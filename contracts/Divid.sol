@@ -28,6 +28,7 @@ contract Divid is Owned,IDivid, ReentrancyGuard {
     uint256 public nodeAccumulatedAll;
 
     uint256 public constant nodeTHRESHOLD = 100 * 1e18;
+    uint256 public maxNode = 800;
 
 
     // --- Events ---
@@ -48,7 +49,7 @@ contract Divid is Owned,IDivid, ReentrancyGuard {
         nftAccumulatedAll+= tetherAmount;
         uint256 nftAccumulatedSend = nftAccumulated / nftTHRESHOLD * nftTHRESHOLD;
 
-        uint256 totalNft = 80;
+        uint256 totalNft = maxNode/10 ;
         if (totalNft == 0) return;
         if (usdt.balanceOf(address(this)) < nftAccumulatedSend) return;
 
@@ -89,7 +90,7 @@ contract Divid is Owned,IDivid, ReentrancyGuard {
         nodeAccumulated += tetherAmount;
         nodeAccumulatedAll += tetherAmount;
         uint256 nodeAccumulatedSend = nodeAccumulated / nodeTHRESHOLD * nodeTHRESHOLD;
-        uint256 totalNodes = 800 ;
+        uint256 totalNodes = maxNode ;
         if (totalNodes == 0) return;
         if (usdt.balanceOf(address(this)) < nodeAccumulatedSend) return;
 
@@ -122,5 +123,10 @@ contract Divid is Owned,IDivid, ReentrancyGuard {
             }
             emit NodeDividendDistributed(startIdx, nextNodeIndex-1, perNodeAmount);
         }
+    }
+
+    function setMaxNode(uint256 newMax) external onlyOwner {
+        require(newMax > 0, "invalid max node");
+        maxNode = newMax;
     }
 }

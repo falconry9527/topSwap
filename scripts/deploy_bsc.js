@@ -33,14 +33,16 @@ async function main() {
     console.log("-----------------------------------------");
 
     // 1. 部署 Referral
-    const Referral = await ethers.getContractFactory("Referral");
-    const referral = await Referral.deploy(ethers.getAddress(topAgentAddress));
-    console.log("Deploying Referral...");
-    await referral.waitForDeployment();
-    const referralAddress = await referral.getAddress();
-    console.log("Referral deployed to:", referralAddress);
-    console.log("-----------------------------------------");
-
+    // const Referral = await ethers.getContractFactory("Referral");
+    // const referral = await Referral.deploy(ethers.getAddress(topAgentAddress));
+    // console.log("Deploying Referral...");
+    // await referral.waitForDeployment();
+    // const referralAddress = await referral.getAddress();
+    // console.log("Referral deployed to:", referralAddress);
+    // console.log("-----------------------------------------");
+    const referralAddress = process.env.Referral_Address;
+    if (!referralAddress) throw new Error("Referral_Address is not defined in env");
+    
     // 2. 部署 NodeNFT
     const nodeNFTAddress = process.env.NODE_Address;
     if (!nodeNFTAddress) throw new Error("NODE_Address is not defined in env");
@@ -156,9 +158,9 @@ async function main() {
     console.log(`Transferred ${lpAmount} TOP to marketingAddress `);
 
     // 9.1 转移权限给  管理员
-    tx = await referral.transferOwnership(ethers.getAddress(adminAddress));
-    await tx.wait();
-    console.log(`referral Transferred owner to ${adminAddress}  `);
+    // tx = await referral.transferOwnership(ethers.getAddress(adminAddress));
+    // await tx.wait();
+    // console.log(`referral Transferred owner to ${adminAddress}  `);
 
     // tx = await nodeNFT.transferOwnership(ethers.getAddress(adminAddress));
     // await tx.wait();
