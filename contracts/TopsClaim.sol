@@ -88,4 +88,10 @@ contract TopsClaim is Owned {
         topsPerNode = 100000 ether / newMax;
         emit MaxNodeUpdated(newMax);
     }
+
+    function getRemainingNodes() external view returns (uint256) {
+        uint256 used = nodeNFT.getNodesLength();
+        return used >= maxNode ? 0 : maxNode - used;
+    }
+
 }
