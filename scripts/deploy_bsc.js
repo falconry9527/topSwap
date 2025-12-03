@@ -25,8 +25,6 @@ async function main() {
 
    const adminAddress = process.env.ADMIN_Address;
     if (!adminAddress) throw new Error("ADMIN_Address is not defined in env");
-
-
     
     const [deployer] = await ethers.getSigners();
     console.log("Deploying account:", deployer.address);
@@ -44,19 +42,22 @@ async function main() {
     console.log("-----------------------------------------");
 
     // 2. 部署 NodeNFT
-    const url = "https://www.toprotocol.xyz/NFT.png"
-    const NodeNFT = await ethers.getContractFactory("NodeNFT");
-    const nodeNFT = await NodeNFT.deploy(
-        ethers.getAddress(usdtAddressConf),
-        ethers.getAddress(marketingAddressConf),
-        referralAddress,
-        url
-    );
-    console.log("Deploying NodeNFT...");
-    await nodeNFT.waitForDeployment();
-    const nodeNFTAddress = await nodeNFT.getAddress();
-    console.log("NodeNFT deployed to:", nodeNFTAddress);
-    console.log("-----------------------------------------");
+    const nodeNFTAddress = process.env.NODE_Address;
+    if (!nodeNFTAddress) throw new Error("NODE_Address is not defined in env");
+
+    // const url = "https://www.toprotocol.xyz/NFT.png"
+    // const NodeNFT = await ethers.getContractFactory("NodeNFT");
+    // const nodeNFT = await NodeNFT.deploy(
+    //     ethers.getAddress(usdtAddressConf),
+    //     ethers.getAddress(marketingAddressConf),
+    //     referralAddress,
+    //     url
+    // );
+    // console.log("Deploying NodeNFT...");
+    // await nodeNFT.waitForDeployment();
+    // const nodeNFTAddress = await nodeNFT.getAddress();
+    // console.log("NodeNFT deployed to:", nodeNFTAddress);
+    // console.log("-----------------------------------------");
 
     // 3. 部署 Divid
     const Divid = await ethers.getContractFactory("Divid");
@@ -110,6 +111,18 @@ async function main() {
     console.log("Pancake Pair address:", pairAddress);
     console.log("-----------------------------------------");
 
+    // ====================== 部署 TopsClaim ======================
+    const TopsClaim = await ethers.getContractFactory("TopsClaim");
+    const topsClaim = await TopsClaim.deploy(
+        topAddress,    // topsToken 地址
+        nodeNFTAddress // NodeNFT 合约地址
+    );
+    console.log("Deploying TopsClaim...");
+    await topsClaim.waitForDeployment();
+    const topsClaimAddress = await topsClaim.getAddress();
+    console.log("TopsClaim deployed to:", topsClaimAddress);
+    console.log("-----------------------------------------");
+
     // 7.1. Staking 设置 TOP 地址
     tx = await staking.setTOP(topAddress);
     await tx.wait();
@@ -117,10 +130,10 @@ async function main() {
     console.log("-----------------------------------------");
 
     // 7.2  NFT 设置 TOP 地址
-    tx = await nodeNFT.setTOP(topAddress);
-    await tx.wait();
-    console.log(`nodeNFT.setTOP called with: ${topAddress}`);
-    console.log("-----------------------------------------");
+    // tx = await nodeNFT.setTOP(topAddress);
+    // await tx.wait();
+    // console.log(`nodeNFT.setTOP called with: ${topAddress}`);
+    // console.log("-----------------------------------------");
 
     // 8. 初始化代币给 NodeNFT 和 Staking
     // 获取 TOP 总发行量（bigint 类型）
@@ -130,9 +143,9 @@ async function main() {
     const stakingAmount = totalSupply * 20n / 100n; // 节点分配 10%
     const lpAmount = totalSupply * 70n / 100n; // 留 1 TOP
     // 给 NodeNFT 合约分配 10%
-    tx = await top.transfer(nodeNFTAddress, perAmount);
+    tx = await top.transfer(topsClaimAddress, perAmount);
     await tx.wait();
-    console.log(`Transferred ${perAmount} TOP to NodeNFT`);
+    console.log(`Transferred ${perAmount} TOP to topsClaimAddress`);
     // 给 Staking 合约分配 20%
     tx = await top.transfer(stakingAddress, stakingAmount);
     await tx.wait();
@@ -147,10 +160,14 @@ async function main() {
     await tx.wait();
     console.log(`referral Transferred owner to ${adminAddress}  `);
 
-    tx = await nodeNFT.transferOwnership(ethers.getAddress(adminAddress));
-    await tx.wait();
-    console.log(`nodeNFT Transferred owner to ${adminAddress}  `);
+    // tx = await nodeNFT.transferOwnership(ethers.getAddress(adminAddress));
+    // await tx.wait();
+    // console.log(`nodeNFT Transferred owner to ${adminAddress}  `);
 
+    tx = await topsClaim.transferOwnership(ethers.getAddress(adminAddress));
+    await tx.wait();
+    console.log(`topsClaim Transferred owner to ${adminAddress}  `);
+    
     tx = await divid.transferOwnership(ethers.getAddress(adminAddress));
     await tx.wait();
     console.log(`divid Transferred owner to ${adminAddress}  `);
@@ -171,6 +188,7 @@ async function main() {
             usdt: usdtAddressConf,
             referral: referralAddress,
             nodeNFT: nodeNFTAddress,
+            topsClaim: topsClaimAddress,
             divid: dividAddress,
             staking: stakingAddress,
             top: topAddress,

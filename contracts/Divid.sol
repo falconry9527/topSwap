@@ -48,7 +48,7 @@ contract Divid is Owned,IDivid, ReentrancyGuard {
         nftAccumulatedAll+= tetherAmount;
         uint256 nftAccumulatedSend = nftAccumulated / nftTHRESHOLD * nftTHRESHOLD;
 
-        uint256 totalNft = nft.MAX_NFT();
+        uint256 totalNft = 80;
         if (totalNft == 0) return;
         if (usdt.balanceOf(address(this)) < nftAccumulatedSend) return;
 
@@ -89,7 +89,7 @@ contract Divid is Owned,IDivid, ReentrancyGuard {
         nodeAccumulated += tetherAmount;
         nodeAccumulatedAll += tetherAmount;
         uint256 nodeAccumulatedSend = nodeAccumulated / nodeTHRESHOLD * nodeTHRESHOLD;
-        uint256 totalNodes = nft.MAX_NFT() * 10 ;
+        uint256 totalNodes = 800 ;
         if (totalNodes == 0) return;
         if (usdt.balanceOf(address(this)) < nodeAccumulatedSend) return;
 
