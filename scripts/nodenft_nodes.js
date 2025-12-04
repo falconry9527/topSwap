@@ -20,10 +20,17 @@ async function main() {
     const NodeNFT = await ethers.getContractAt("NodeNFT", nodeNFTAddress);
 
     // 获取节点数量
-    const nodeCount= ethers.parseUnits("1", 2)
-    let tx = await NodeNFT.setUserCanBuyNode(nodeCount);
+    const amount = ethers.parseUnits("600", 18); // 质押 10 USDT  
+    const usdtAddress = deployed.contracts.usdt; // 如果 deployed.json 有 USDT 地址
+    const USDT = await ethers.getContractAt("IERC20", usdtAddress);
+    let tx = await USDT.approve(nodeNFTAddress, amount);
     await tx.wait();
-    console.log(`NodeNFT setUserCanBuyNode ${nodeCount}`);
+    console.log("USDT approved for staking contract");
+
+    const nodeCount= ethers.parseUnits("1", 0)
+     tx = await NodeNFT.buyNodes(nodeCount);
+    await tx.wait();
+    console.log(`NodeNFT buyNodes ${nodeCount}`);
 
 }
 
