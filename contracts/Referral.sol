@@ -12,7 +12,6 @@ contract Referral is Owned,IReferral {
 
     uint256 public constant MAX_DEPTH = 30; 
 
-    address[] public topAddresses;
     mapping(address => bool) public isTopAddress;
 
     mapping(address => address) private _parent;
@@ -113,9 +112,6 @@ contract Referral is Owned,IReferral {
         return _children[_address];
     }
 
-    function getTopAddresses() external view returns(address[] memory) {
-        return topAddresses;
-    }
 
 }
 
