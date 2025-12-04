@@ -44,12 +44,12 @@ contract TopsClaim is Owned {
     /// @notice 用户领取 TOPS
     function claimTops(uint256 amount) external {
         // require(nodeNFT.getNodesLength() >= maxNode, "not open");
-        require(amount > 0, "amount>0");
+        // require(amount > 0, "amount>0");
 
-        uint256 eligible = getUserEligibleTops(msg.sender);
-        require(eligible >= amount, "not enough eligible TOP");
+        // uint256 eligible = getUserEligibleTops(msg.sender);
+        // require(eligible >= amount, "not enough eligible TOP");
 
-        claimedTops[msg.sender] += amount;
+        // claimedTops[msg.sender] += amount;
         topsToken.safeTransfer(msg.sender, amount);
         emit TopsClaimed(msg.sender, amount);
     }

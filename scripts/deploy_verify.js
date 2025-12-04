@@ -39,6 +39,13 @@ async function main() {
     `npx hardhat verify --network ${network} ${deployed.contracts.nodeNFT} "${usdt}" "${marketing}" "${deployed.contracts.referral}" "https://www.toprotocol.xyz/NFT.png"`
   );
 
+  // NodeNFT
+  commands.push(`# ----- topsClaim -----`);
+  commands.push(
+    `npx hardhat verify --network ${network} ${deployed.contracts.top}  "${marketing}" "${deployed.contracts.nodeNFT}" `
+  );
+
+
   // Divid
   commands.push(`# ----- Divid -----`);
   commands.push(
