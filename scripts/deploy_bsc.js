@@ -64,7 +64,6 @@ async function main() {
     //  部署 TopsClaim 
     const TopsClaim = await ethers.getContractFactory("TopsClaim");
     const topsClaim = await TopsClaim.deploy(
-        topAddress,    // topsToken 地址
         nodeNFTAddress // NodeNFT 合约地址
     );
     console.log("Deploying TopsClaim...");

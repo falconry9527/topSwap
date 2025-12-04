@@ -16,6 +16,7 @@ contract TopsClaim is Owned {
 
     event TopsClaimed(address indexed user, uint256 amount);
     event MaxNodeUpdated(uint256 newMax);
+    bool public presale;
 
     constructor(address _nodeNFT) Owned(msg.sender) {
         require(_nodeNFT != address(0), "nodeNFT cannot be zero");
@@ -38,7 +39,7 @@ contract TopsClaim is Owned {
 
     /// @notice 用户领取 TOPS
     function claimTops(uint256 amount) external {
-        // require(nodeNFT.getNodesLength() >= maxNode, "not open");
+        require(presale, "pre");
         require(amount > 0, "amount>0");
 
         uint256 contractBal = topsToken.balanceOf(address(this));
@@ -96,6 +97,10 @@ contract TopsClaim is Owned {
 
     function setTOP(address _topAddress) external onlyOwner {
         topsToken = ITOP(_topAddress);
+    }
+
+    function setPresale() external onlyOwner {
+       presale=true ;
     }
 
 }
