@@ -134,7 +134,7 @@ async function main() {
     // 7.2  topsClaim 设置 TOP 地址
     tx = await topsClaim.setTOP(topAddress);
     await tx.wait();
-    console.log(`nodeNFT.setTOP called with: ${topAddress}`);
+    console.log(`topsClaim.setTOP called with: ${topAddress}`);
     console.log("-----------------------------------------");
 
     // 8. 初始化代币给 NodeNFT 和 Staking
