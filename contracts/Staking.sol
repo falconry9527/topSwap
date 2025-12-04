@@ -29,9 +29,10 @@ contract Staking is Owned, FirstLaunch {
         uint256 index
     );
     event Transfer(address indexed from, address indexed to, uint256 amount);
-    uint256[2] rates = [1000000034670200000,1000000143330000000]; 
-    uint256[2] stakeDays = [1 days,30 days];  
-
+    // uint256[2] rates = [1000000034670200000,1000000143330000000]; 
+    // uint256[2] stakeDays = [1 days,30 days];  
+    uint256[2] rates = [1000049925000000000,1001239312300000000]; 
+    uint256[2] stakeDays = [1 minutes,5 minutes];  
     IPancakeRouter02 public ROUTER ;
     IERC20 public USDT ;
 
