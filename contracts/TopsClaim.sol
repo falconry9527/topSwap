@@ -11,7 +11,7 @@ contract TopsClaim is Owned {
     INodeNFT public nodeNFT;
     mapping(address => uint256) public claimedTops;
     
-    uint256 public maxNode = 1000;
+    uint256 public maxNode = 2000;
     uint256 public topsPerNode ;
 
     event TopsClaimed(address indexed user, uint256 amount);

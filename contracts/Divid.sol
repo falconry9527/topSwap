@@ -28,7 +28,7 @@ contract Divid is Owned,IDivid, ReentrancyGuard {
     uint256 public nodeAccumulatedAll;
 
     uint256 public constant nodeTHRESHOLD = 100 * 1e18;
-    uint256 public maxNode = 1000;
+    uint256 public maxNode = 2000;
 
 
     // --- Events ---
