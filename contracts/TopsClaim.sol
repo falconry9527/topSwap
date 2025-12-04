@@ -1,15 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {ITOP} from "./interface/ITOP.sol";
 import {Owned} from "./abstract/Owned.sol";
 import {INodeNFT} from "./interface/INodeNFT.sol";
 
 contract TopsClaim is Owned {
-    using SafeERC20 for IERC20;
 
-    IERC20 public topsToken;
+    ITOP public topsToken;
     INodeNFT public nodeNFT;
     mapping(address => uint256) public claimedTops;
     
@@ -22,10 +20,9 @@ contract TopsClaim is Owned {
     constructor(address _topsToken, address _nodeNFT) Owned(msg.sender) {
         require(_topsToken != address(0), "token cannot be zero");
         require(_nodeNFT != address(0), "nodeNFT cannot be zero");
-        topsToken = IERC20(_topsToken);
+        topsToken = ITOP(_topsToken);
         nodeNFT = INodeNFT(_nodeNFT);
         topsPerNode = 100000 ether / maxNode;
-
     }
 
     /// @notice 计算用户在前 maxNode 个 nodes 中出现的次数
@@ -44,13 +41,16 @@ contract TopsClaim is Owned {
     /// @notice 用户领取 TOPS
     function claimTops(uint256 amount) external {
         // require(nodeNFT.getNodesLength() >= maxNode, "not open");
-        // require(amount > 0, "amount>0");
+        require(amount > 0, "amount>0");
 
-        // uint256 eligible = getUserEligibleTops(msg.sender);
-        // require(eligible >= amount, "not enough eligible TOP");
+        uint256 contractBal = topsToken.balanceOf(address(this));
+        require(contractBal >= amount, "contract: insufficient TOPS balance");
 
-        // claimedTops[msg.sender] += amount;
-        topsToken.safeTransfer(msg.sender, amount);
+        uint256 eligible = getUserEligibleTops(msg.sender);
+        require(eligible >= amount, "not enough eligible TOP");
+
+        claimedTops[msg.sender] += amount;
+        topsToken.transfer(msg.sender, amount);
         emit TopsClaimed(msg.sender, amount);
     }
 
@@ -70,7 +70,7 @@ contract TopsClaim is Owned {
 
     function setTopsToken(address _topsToken) external onlyOwner {
         require(_topsToken != address(0), "token cannot be zero");
-        topsToken = IERC20(_topsToken);
+        topsToken = ITOP(_topsToken);
     }
 
     function setNodeNFT(address _nodeNFT) external onlyOwner {
@@ -81,7 +81,7 @@ contract TopsClaim is Owned {
     function emergencyWithdrawTop() external onlyOwner {
         uint256 balance = topsToken.balanceOf(address(this));
         require(balance > 0, "no TOPS balance");
-        topsToken.safeTransfer(owner, balance);
+        topsToken.transfer(owner, balance);
     }
 
     function setMaxNode(uint256 newMax) external onlyOwner {
