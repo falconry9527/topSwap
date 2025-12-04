@@ -45,11 +45,10 @@ async function main() {
     `npx hardhat verify --network ${network} ${deployed.contracts.topsClaim} "${deployed.contracts.nodeNFT}" `
   );
 
-
   // Divid
   commands.push(`# ----- Divid -----`);
   commands.push(
-    `npx hardhat verify --network ${network} ${deployed.contracts.divid} "${usdt}" "${deployed.contracts.nodeNFT}"`
+    `npx hardhat verify --network ${network} ${deployed.contracts.divid} "${usdt}" "${deployed.contracts.nodeNFT}"  "${deployed.contracts.topsClaim}"`
   );
 
   // Staking

@@ -76,7 +76,8 @@ async function main() {
     const Divid = await ethers.getContractFactory("Divid");
     const divid = await Divid.deploy(
         ethers.getAddress(usdtAddressConf),
-        nodeNFTAddress
+        nodeNFTAddress,
+        topsClaimAddress
     );
     console.log("Deploying Divid...");
     await divid.waitForDeployment();

@@ -6,7 +6,9 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {IDivid} from "./interface/IDivid.sol";
 import {INodeNFT} from "./interface/INodeNFT.sol";
+import {ITopsClaim} from "./interface/ITopsClaim.sol";
 import {Owned} from "./abstract/Owned.sol";
+
 
 contract Divid is Owned,IDivid, ReentrancyGuard {
     using SafeERC20 for IERC20;
@@ -28,16 +30,16 @@ contract Divid is Owned,IDivid, ReentrancyGuard {
     uint256 public nodeAccumulatedAll;
 
     uint256 public constant nodeTHRESHOLD = 100 * 1e18;
-    uint256 public maxNode = 2000;
-
+    ITopsClaim public topsClaim ;
 
     // --- Events ---
     event NftDividendDistributed(uint256 startId, uint256 endId, uint256 amount);
     event NodeDividendDistributed(uint256 startId, uint256 endId, uint256 amount);
 
-    constructor(address _usdtAddress, address _nftAddress)  Owned(msg.sender)  {
+    constructor(address _usdtAddress, address _nftAddress, address _topsClaimAddress)  Owned(msg.sender)  {
         usdt = IERC20(_usdtAddress);
         nft = INodeNFT(_nftAddress);
+        topsClaim = ITopsClaim(_topsClaimAddress);
         owner = msg.sender;
     }
 
@@ -49,7 +51,7 @@ contract Divid is Owned,IDivid, ReentrancyGuard {
         nftAccumulatedAll+= tetherAmount;
         uint256 nftAccumulatedSend = nftAccumulated / nftTHRESHOLD * nftTHRESHOLD;
 
-        uint256 totalNft = maxNode / 10 ;
+        uint256 totalNft = topsClaim.maxNode() / 10 ;
         if (totalNft == 0) return;
         if (usdt.balanceOf(address(this)) < nftAccumulatedSend) return;
 
@@ -90,7 +92,7 @@ contract Divid is Owned,IDivid, ReentrancyGuard {
         nodeAccumulated += tetherAmount;
         nodeAccumulatedAll += tetherAmount;
         uint256 nodeAccumulatedSend = nodeAccumulated / nodeTHRESHOLD * nodeTHRESHOLD;
-        uint256 totalNodes = maxNode ;
+        uint256 totalNodes = topsClaim.maxNode() ;
         if (totalNodes == 0) return;
         if (usdt.balanceOf(address(this)) < nodeAccumulatedSend) return;
 
@@ -125,8 +127,14 @@ contract Divid is Owned,IDivid, ReentrancyGuard {
         }
     }
 
-    function setMaxNode(uint256 newMax) external onlyOwner {
-        require(newMax >= 400 && newMax<=2000, "invalid max node");
-        maxNode = newMax;
+
+    function setNFT(address _nft) external onlyOwner {
+        require(_nft != address(0), "NFT cannot be zero");
+        nft = INodeNFT(_nft);
+    }
+
+    function setTopsClaim(address _topsClaim) external onlyOwner {
+        require(_topsClaim != address(0), "topsClaim cannot be zero");
+        topsClaim = ITopsClaim(_topsClaim);
     }
 }
