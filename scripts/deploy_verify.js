@@ -42,7 +42,7 @@ async function main() {
   // topsClaim
   commands.push(`# ----- topsClaim -----`);
   commands.push(
-    `npx hardhat verify --network ${network} ${deployed.contracts.topsClaim}  "${deployed.contracts.top}" "${deployed.contracts.nodeNFT}" `
+    `npx hardhat verify --network ${network} ${deployed.contracts.topsClaim} "${deployed.contracts.nodeNFT}" `
   );
 
 
@@ -61,7 +61,7 @@ async function main() {
   // TOP
   commands.push(`# ----- TOP -----`);
   commands.push(
-    `npx hardhat verify --network ${network} ${deployed.contracts.top} "${usdt}" "${marketing}" "${router}" "${deployed.contracts.referral}" "${deployed.contracts.divid}" "${deployed.contracts.staking}" "${deployed.contracts.nodeNFT}"`
+    `npx hardhat verify --network ${network} ${deployed.contracts.top} "${usdt}" "${marketing}" "${router}" "${deployed.contracts.referral}" "${deployed.contracts.divid}" "${deployed.contracts.staking}" "${deployed.contracts.topsClaim}"`
   );
 
   // 4️⃣ 输出到 verify_commands.sh 文件

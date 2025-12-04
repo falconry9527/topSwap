@@ -61,6 +61,18 @@ async function main() {
     // console.log("NodeNFT deployed to:", nodeNFTAddress);
     // console.log("-----------------------------------------");
 
+    //  部署 TopsClaim 
+    const TopsClaim = await ethers.getContractFactory("TopsClaim");
+    const topsClaim = await TopsClaim.deploy(
+        topAddress,    // topsToken 地址
+        nodeNFTAddress // NodeNFT 合约地址
+    );
+    console.log("Deploying TopsClaim...");
+    await topsClaim.waitForDeployment();
+    const topsClaimAddress = await topsClaim.getAddress();
+    console.log("TopsClaim deployed to:", topsClaimAddress);
+    console.log("-----------------------------------------");
+
     // 3. 部署 Divid
     const Divid = await ethers.getContractFactory("Divid");
     const divid = await Divid.deploy(
@@ -98,7 +110,7 @@ async function main() {
         referralAddress,
         dividAddress,
         stakingAddress,
-        nodeNFTAddress
+        topsClaimAddress
     );
     console.log("Deploying TOP...");
     await top.waitForDeployment();
@@ -113,29 +125,17 @@ async function main() {
     console.log("Pancake Pair address:", pairAddress);
     console.log("-----------------------------------------");
 
-    // ====================== 部署 TopsClaim ======================
-    const TopsClaim = await ethers.getContractFactory("TopsClaim");
-    const topsClaim = await TopsClaim.deploy(
-        topAddress,    // topsToken 地址
-        nodeNFTAddress // NodeNFT 合约地址
-    );
-    console.log("Deploying TopsClaim...");
-    await topsClaim.waitForDeployment();
-    const topsClaimAddress = await topsClaim.getAddress();
-    console.log("TopsClaim deployed to:", topsClaimAddress);
-    console.log("-----------------------------------------");
-
     // 7.1. Staking 设置 TOP 地址
     tx = await staking.setTOP(topAddress);
     await tx.wait();
     console.log(`Staking.setTOP called with: ${topAddress}`);
     console.log("-----------------------------------------");
 
-    // 7.2  NFT 设置 TOP 地址
-    // tx = await nodeNFT.setTOP(topAddress);
-    // await tx.wait();
-    // console.log(`nodeNFT.setTOP called with: ${topAddress}`);
-    // console.log("-----------------------------------------");
+    // 7.2  topsClaim 设置 TOP 地址
+    tx = await topsClaim.setTOP(topAddress);
+    await tx.wait();
+    console.log(`nodeNFT.setTOP called with: ${topAddress}`);
+    console.log("-----------------------------------------");
 
     // 8. 初始化代币给 NodeNFT 和 Staking
     // 获取 TOP 总发行量（bigint 类型）

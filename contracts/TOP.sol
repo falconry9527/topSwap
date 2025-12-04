@@ -47,7 +47,7 @@ contract TOP  is Owned,ExcludedFromFeeList, FirstLaunch, ERC20 {
     mapping(address => uint40) public lastBuyTime;
     address public STAKING;
     address public REFERRAL;
-    address public NODENFT;
+    address public TOPCLAIM;
 
     struct POOLUStatus {
         uint112 bal; // pool usdt reserve last time update
@@ -106,13 +106,13 @@ contract TOP  is Owned,ExcludedFromFeeList, FirstLaunch, ERC20 {
         address _referralAddress,
         address _dividAdress,
         address _stakingAdress,
-        address _nodeNFTAddress
+        address _topsClaimAddress
     ) Owned(msg.sender) ERC20("TOP", "TOP", 1000000 ether) {
         USDT=_usdtAddress ;
         STAKING = _stakingAdress;
         REFERRAL = _referralAddress;
         marketingAddress = _marketingAddress;
-        NODENFT = _nodeNFTAddress ;
+        TOPCLAIM = _topsClaimAddress ;
         distributor = new Distributor(address(this));
         IERC20(_usdtAddress).approve(address(distributor), type(uint256).max);
         
@@ -129,7 +129,7 @@ contract TOP  is Owned,ExcludedFromFeeList, FirstLaunch, ERC20 {
         excludeFromFee(STAKING);
         excludeFromFee(dividAdress);
         excludeFromFee(marketingAddress);
-        excludeFromFee(NODENFT);
+        excludeFromFee(TOPCLAIM);
     }
 
     function _transfer(
