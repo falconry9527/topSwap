@@ -42,7 +42,7 @@ async function main() {
   // topsClaim
   commands.push(`# ----- topsClaim -----`);
   commands.push(
-    `npx hardhat verify --network ${network} ${deployed.contracts.topsClaim}  "${marketing}" "${deployed.contracts.nodeNFT}" `
+    `npx hardhat verify --network ${network} ${deployed.contracts.topsClaim}  "${deployed.contracts.top}" "${deployed.contracts.nodeNFT}" `
   );
 
 
