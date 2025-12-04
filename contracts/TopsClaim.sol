@@ -13,8 +13,8 @@ contract TopsClaim is Owned {
     INodeNFT public nodeNFT;
     mapping(address => uint256) public claimedTops;
     
-    uint256 public maxNode = 800;
-    uint256 public topsPerNode = 125 ether;
+    uint256 public maxNode = 1000;
+    uint256 public topsPerNode ;
 
     event TopsClaimed(address indexed user, uint256 amount);
     event MaxNodeUpdated(uint256 newMax);
@@ -24,6 +24,8 @@ contract TopsClaim is Owned {
         require(_nodeNFT != address(0), "nodeNFT cannot be zero");
         topsToken = IERC20(_topsToken);
         nodeNFT = INodeNFT(_nodeNFT);
+        topsPerNode = 100000 ether / maxNode;
+
     }
 
     /// @notice 计算用户在前 maxNode 个 nodes 中出现的次数
@@ -83,7 +85,7 @@ contract TopsClaim is Owned {
     }
 
     function setMaxNode(uint256 newMax) external onlyOwner {
-        require(newMax > 0, "invalid max node");
+        require(newMax >= 400 && newMax<=2000, "invalid max node");
         maxNode = newMax;
         topsPerNode = 100000 ether / newMax;
         emit MaxNodeUpdated(newMax);
